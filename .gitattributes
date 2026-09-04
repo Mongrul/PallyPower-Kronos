@@ -1,0 +1,4 @@
+* text=auto
+*.lua text
+*.toc text
+*.md text

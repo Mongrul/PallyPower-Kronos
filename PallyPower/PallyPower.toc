@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: PallyPower Classic
+## Author: Aznamir, Dyaxler, Es
+## Version: v1.4.4-classic-112
+## Notes: Raid/Party Paladin buffs - vanilla 1.12 client build (syncs with the 1.14 build via the same PLPWR protocol)
+## DefaultState: Enabled
+## SavedVariablesPerCharacter: PP112_Options, PallyPower_Assignments, PallyPower_NormalAssignments
+
+Classic112\PallyPower112.lua

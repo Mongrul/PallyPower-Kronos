@@ -1,0 +1,6 @@
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+# local working notes, not part of the addon
+CLAUDE.md
