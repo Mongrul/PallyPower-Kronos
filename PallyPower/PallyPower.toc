@@ -4,6 +4,6 @@
 ## Version: v1.4.4-classic-112
 ## Notes: Raid/Party Paladin buffs - vanilla 1.12 client build (syncs with the 1.14 build via the same PLPWR protocol)
 ## DefaultState: Enabled
-## SavedVariablesPerCharacter: PP112_Options, PallyPower_Assignments, PallyPower_NormalAssignments
+## SavedVariablesPerCharacter: PallyPowerKronos112_Options, PallyPowerKronos_Assignments, PallyPowerKronos_NormalAssignments
 
 Classic112\PallyPower112.lua

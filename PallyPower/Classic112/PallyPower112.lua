@@ -242,49 +242,49 @@ P.PAT_FADE_SELF = P.PatternFromFormat(AURAREMOVEDSELF or "%s fades from you.")
 -- Saved variables
 -- ----------------------------------------------------------------------------
 function P.InitSavedVars()
-	if not PP112_Options then PP112_Options = {} end
+	if not PallyPowerKronos112_Options then PallyPowerKronos112_Options = {} end
 	local d = {
 		scale = 0.9, scanfreq = 10, freeassign = true,
 		locked = false, barx = nil, bary = nil,
 		cfgx = nil, cfgy = nil, showsolo = true, flyoutleft = false,
 	}
 	for k, v in pairs(d) do
-		if PP112_Options[k] == nil then PP112_Options[k] = v end
+		if PallyPowerKronos112_Options[k] == nil then PallyPowerKronos112_Options[k] = v end
 	end
-	if not PallyPower_Assignments then PallyPower_Assignments = {} end
-	if not PallyPower_NormalAssignments then PallyPower_NormalAssignments = {} end
+	if not PallyPowerKronos_Assignments then PallyPowerKronos_Assignments = {} end
+	if not PallyPowerKronos_NormalAssignments then PallyPowerKronos_NormalAssignments = {} end
 	-- One-time migrations. dataver history:
 	--   nil = original 1.12 addon (0-based IDs; those numbers mean something
 	--         else in the 1.14 scheme, so wipe them)
 	--   2   = first build of this rewrite (showsolo wrongly defaulted to off)
-	if PP112_Options.dataver == nil then
-		PallyPower_Assignments = {}
-		PallyPower_NormalAssignments = {}
+	if PallyPowerKronos112_Options.dataver == nil then
+		PallyPowerKronos_Assignments = {}
+		PallyPowerKronos_NormalAssignments = {}
 	end
-	if (PP112_Options.dataver or 0) < 3 then
-		PP112_Options.showsolo = true
-		PP112_Options.dataver = 3
+	if (PallyPowerKronos112_Options.dataver or 0) < 3 then
+		PallyPowerKronos112_Options.showsolo = true
+		PallyPowerKronos112_Options.dataver = 3
 	end
-	if (PP112_Options.dataver or 0) < 4 then
+	if (PallyPowerKronos112_Options.dataver or 0) < 4 then
 		-- free assignment defaults to ON for the Kronos build
-		PP112_Options.freeassign = true
-		PP112_Options.dataver = 4
+		PallyPowerKronos112_Options.freeassign = true
+		PallyPowerKronos112_Options.dataver = 4
 	end
 end
 
 function P.MyAssignments()
-	if not PallyPower_Assignments[P.playerName] then
-		PallyPower_Assignments[P.playerName] = {}
-		for i = 1, P.MAXCLASSES do PallyPower_Assignments[P.playerName][i] = 0 end
+	if not PallyPowerKronos_Assignments[P.playerName] then
+		PallyPowerKronos_Assignments[P.playerName] = {}
+		for i = 1, P.MAXCLASSES do PallyPowerKronos_Assignments[P.playerName][i] = 0 end
 	end
-	return PallyPower_Assignments[P.playerName]
+	return PallyPowerKronos_Assignments[P.playerName]
 end
 
 function P.MyNormalAssignments()
-	if not PallyPower_NormalAssignments[P.playerName] then
-		PallyPower_NormalAssignments[P.playerName] = {}
+	if not PallyPowerKronos_NormalAssignments[P.playerName] then
+		PallyPowerKronos_NormalAssignments[P.playerName] = {}
 	end
-	return PallyPower_NormalAssignments[P.playerName]
+	return PallyPowerKronos_NormalAssignments[P.playerName]
 end
 
 -- ----------------------------------------------------------------------------
@@ -550,7 +550,7 @@ end
 -- The 1.14 parser only pattern-matches the keywords, so pipes are not needed.
 function P.SendStatus()
 	local fa = "NO"
-	if PP112_Options.freeassign then fa = "YES" end
+	if PallyPowerKronos112_Options.freeassign then fa = "YES" end
 	P.SendMessage("FREEASSIGN " .. fa .. " SYMCOUNT " .. P.PP_Symbols .. " COOLDOWNS" .. P.CooldownPart(1) .. P.CooldownPart(2))
 end
 
@@ -594,10 +594,10 @@ function P.ParseMessage(sender, msg, prefix)
 	end
 
 	if string.find(msg, "^SELF") then
-		PallyPower_NormalAssignments[sender] = PallyPower_NormalAssignments[sender] or {}
-		local keepPet = PallyPower_Assignments[sender] and PallyPower_Assignments[sender][9]
-		PallyPower_Assignments[sender] = {}
-		PallyPower_Assignments[sender][9] = keepPet
+		PallyPowerKronos_NormalAssignments[sender] = PallyPowerKronos_NormalAssignments[sender] or {}
+		local keepPet = PallyPowerKronos_Assignments[sender] and PallyPowerKronos_Assignments[sender][9]
+		PallyPowerKronos_Assignments[sender] = {}
+		PallyPowerKronos_Assignments[sender][9] = keepPet
 		AllPallys[sender] = AllPallys[sender] or {}
 		local skills = AllPallys[sender]
 		-- original 1.12 wire format: skills in OLD blessing order, then
@@ -622,7 +622,7 @@ function P.ParseMessage(sender, msg, prefix)
 				if tmp ~= "n" and tmp ~= "" then
 					blessID = P.BlessOldToNew[tonumber(tmp) or -1] or 0
 				end
-				PallyPower_Assignments[sender][oldc + 1] = blessID
+				PallyPowerKronos_Assignments[sender][oldc + 1] = blessID
 			end
 		end
 		local pend = P.pendingStatus[sender]
@@ -636,19 +636,19 @@ function P.ParseMessage(sender, msg, prefix)
 		local _, _, name, class, skill = string.find(msg, "^ASSIGN (.*) (.*) (.*)")
 		if name then
 			name = P.StripRealm(name)
-			if name == sender or leader or PP112_Options.freeassign then
-				if not PallyPower_Assignments[name] then PallyPower_Assignments[name] = {} end
+			if name == sender or leader or PallyPowerKronos112_Options.freeassign then
+				if not PallyPowerKronos_Assignments[name] then PallyPowerKronos_Assignments[name] = {} end
 				if prefix == "PLPWRX" then
 					-- the proxy-bypass prefix carries MODERN ids (pet class)
 					local classid = tonumber(class) or 0
 					if classid >= 1 and classid <= P.MAXCLASSES and classid == math.floor(classid) then
-						PallyPower_Assignments[name][classid] = P.SaneBless(skill)
+						PallyPowerKronos_Assignments[name][classid] = P.SaneBless(skill)
 					end
 				else
 					-- old wire: class 0..7, skill = old blessing id or -1
 					local classid = (tonumber(class) or -1) + 1
 					if classid >= 1 and classid <= 8 then
-						PallyPower_Assignments[name][classid] = P.BlessOldToNew[tonumber(skill) or -1] or 0
+						PallyPowerKronos_Assignments[name][classid] = P.BlessOldToNew[tonumber(skill) or -1] or 0
 					end
 				end
 			end
@@ -659,12 +659,12 @@ function P.ParseMessage(sender, msg, prefix)
 		local _, _, name, assign = string.find(msg, "^PASSIGN (.*)@([0-9n]*)")
 		if name then
 			name = P.StripRealm(name)
-			if name == sender or leader or PP112_Options.freeassign then
-				if not PallyPower_Assignments[name] then PallyPower_Assignments[name] = {} end
+			if name == sender or leader or PallyPowerKronos112_Options.freeassign then
+				if not PallyPowerKronos_Assignments[name] then PallyPowerKronos_Assignments[name] = {} end
 				for i = 1, P.MAXCLASSES do
 					local tmp = string.sub(assign, i, i)
 					if tmp == "n" or tmp == "" then tmp = "0" end
-					PallyPower_Assignments[name][i] = P.SaneBless(tmp)
+					PallyPowerKronos_Assignments[name][i] = P.SaneBless(tmp)
 				end
 			end
 		end
@@ -673,16 +673,16 @@ function P.ParseMessage(sender, msg, prefix)
 	if string.find(msg, "^NASSIGN") then
 		for pname, class, tname, skill in string.gfind(string.sub(msg, 9), "([^@]*) ([^@]*) ([^@]*) ([^@]*)") do
 			local name = P.StripRealm(pname)
-			if name == sender or leader or PP112_Options.freeassign then
-				if not PallyPower_NormalAssignments[name] then PallyPower_NormalAssignments[name] = {} end
+			if name == sender or leader or PallyPowerKronos112_Options.freeassign then
+				if not PallyPowerKronos_NormalAssignments[name] then PallyPowerKronos_NormalAssignments[name] = {} end
 				class = tonumber(class) or 0
 				if class >= 1 and class <= P.MAXCLASSES and class == math.floor(class) then
-					if not PallyPower_NormalAssignments[name][class] then
-						PallyPower_NormalAssignments[name][class] = {}
+					if not PallyPowerKronos_NormalAssignments[name][class] then
+						PallyPowerKronos_NormalAssignments[name][class] = {}
 					end
 					skill = P.SaneBless(skill)
 					if skill == 0 then skill = nil end
-					PallyPower_NormalAssignments[name][class][tname] = skill
+					PallyPowerKronos_NormalAssignments[name][class][tname] = skill
 				end
 			end
 		end
@@ -692,12 +692,12 @@ function P.ParseMessage(sender, msg, prefix)
 		local _, _, name, skill = string.find(msg, "^MASSIGN (.*) (.*)")
 		if name then
 			name = P.StripRealm(name)
-			if name == sender or leader or PP112_Options.freeassign then
-				if not PallyPower_Assignments[name] then PallyPower_Assignments[name] = {} end
+			if name == sender or leader or PallyPowerKronos112_Options.freeassign then
+				if not PallyPowerKronos_Assignments[name] then PallyPowerKronos_Assignments[name] = {} end
 				-- old wire: skill = old blessing id or -1
 				local blessID = P.BlessOldToNew[tonumber(skill) or -1] or 0
 				for i = 1, P.MAXCLASSES do
-					PallyPower_Assignments[name][i] = blessID
+					PallyPowerKronos_Assignments[name][i] = blessID
 				end
 			end
 		end
@@ -719,11 +719,11 @@ function P.ParseMessage(sender, msg, prefix)
 
 	if string.find(msg, "^CLEAR") then
 		if leader then
-			for name in pairs(PallyPower_Assignments) do
-				PallyPower_Assignments[name] = {}
+			for name in pairs(PallyPowerKronos_Assignments) do
+				PallyPowerKronos_Assignments[name] = {}
 			end
-			for name in pairs(PallyPower_NormalAssignments) do
-				PallyPower_NormalAssignments[name] = {}
+			for name in pairs(PallyPowerKronos_NormalAssignments) do
+				PallyPowerKronos_NormalAssignments[name] = {}
 			end
 		end
 	end
@@ -776,10 +776,10 @@ end
 -- Assignment logic
 -- ----------------------------------------------------------------------------
 function P.GetEffectiveAssignment(pally, classid, tname)
-	local na = PallyPower_NormalAssignments[pally]
+	local na = PallyPowerKronos_NormalAssignments[pally]
 	na = na and na[classid] and na[classid][tname]
 	if na and na > 0 then return na, true end
-	local ga = PallyPower_Assignments[pally] and PallyPower_Assignments[pally][classid]
+	local ga = PallyPowerKronos_Assignments[pally] and PallyPowerKronos_Assignments[pally][classid]
 	if ga and ga > 0 then return ga, false end
 	return 0, false
 end
@@ -793,7 +793,7 @@ function P.PallyKnows(name, blessID)
 end
 
 function P.AssignedElsewhere(name, classid, blessID)
-	for pally, skills in pairs(PallyPower_Assignments) do
+	for pally, skills in pairs(PallyPowerKronos_Assignments) do
 		if pally ~= name and AllPallys[pally] and skills[classid] == blessID then
 			return true
 		end
@@ -805,19 +805,19 @@ function P.BroadcastAssignment(name, classid)
 	if classid == 9 then
 		-- pets have no slot on the old wire; tunnel a MODERN-id message
 		-- over the proxy-bypass prefix, like NASSIGN
-		local a = PallyPower_Assignments[name][classid] or 0
+		local a = PallyPowerKronos_Assignments[name][classid] or 0
 		P.SendMessage("ASSIGN " .. name .. " 9 " .. a)
 		return
 	end
-	local a = PallyPower_Assignments[name][classid] or 0
+	local a = PallyPowerKronos_Assignments[name][classid] or 0
 	local old = P.BlessNewToOld[a] or -1
 	P.SendMessage("ASSIGN " .. name .. " " .. (classid - 1) .. " " .. old)
 end
 
 function P.CycleAssignment(name, classid, backwards)
 	if not P.CanControl(name) then return end
-	if not PallyPower_Assignments[name] then PallyPower_Assignments[name] = {} end
-	local cur = PallyPower_Assignments[name][classid] or 0
+	if not PallyPowerKronos_Assignments[name] then PallyPowerKronos_Assignments[name] = {} end
+	local cur = PallyPowerKronos_Assignments[name][classid] or 0
 	local step = 1
 	if backwards then step = -1 end
 	local test = cur
@@ -830,16 +830,16 @@ function P.CycleAssignment(name, classid, backwards)
 			break
 		end
 	end
-	PallyPower_Assignments[name][classid] = test
+	PallyPowerKronos_Assignments[name][classid] = test
 	P.BroadcastAssignment(name, classid)
 	P.UpdateAll()
 end
 
 function P.MassAssign(name, blessID)
 	if not P.CanControl(name) then return end
-	if not PallyPower_Assignments[name] then PallyPower_Assignments[name] = {} end
+	if not PallyPowerKronos_Assignments[name] then PallyPowerKronos_Assignments[name] = {} end
 	for c = 1, P.MAXCLASSES do
-		PallyPower_Assignments[name][c] = blessID
+		PallyPowerKronos_Assignments[name][c] = blessID
 	end
 	P.SendMessage("MASSIGN " .. name .. " " .. (P.BlessNewToOld[blessID] or -1))
 	P.UpdateAll()
@@ -849,7 +849,7 @@ end
 -- assign it to every class in the row. Starts from the clicked cell's value.
 function P.MassCycle(name, classid, backwards)
 	if not P.CanControl(name) then return end
-	local cur = (PallyPower_Assignments[name] and PallyPower_Assignments[name][classid]) or 0
+	local cur = (PallyPowerKronos_Assignments[name] and PallyPowerKronos_Assignments[name][classid]) or 0
 	local step = 1
 	if backwards then step = -1 end
 	local test = cur
@@ -867,12 +867,12 @@ end
 -- set (or clear, with 0) a paladin's personal 5-minute blessing for one target
 function P.SetNormalAssignmentFor(pally, classid, tname, blessID)
 	if not P.CanControl(pally) then return end
-	if not PallyPower_NormalAssignments[pally] then PallyPower_NormalAssignments[pally] = {} end
-	if not PallyPower_NormalAssignments[pally][classid] then PallyPower_NormalAssignments[pally][classid] = {} end
+	if not PallyPowerKronos_NormalAssignments[pally] then PallyPowerKronos_NormalAssignments[pally] = {} end
+	if not PallyPowerKronos_NormalAssignments[pally][classid] then PallyPowerKronos_NormalAssignments[pally][classid] = {} end
 	if blessID == 0 then
-		PallyPower_NormalAssignments[pally][classid][tname] = nil
+		PallyPowerKronos_NormalAssignments[pally][classid][tname] = nil
 	else
-		PallyPower_NormalAssignments[pally][classid][tname] = blessID
+		PallyPowerKronos_NormalAssignments[pally][classid][tname] = blessID
 	end
 	P.SendMessage("NASSIGN " .. pally .. " " .. classid .. " " .. tname .. " " .. blessID)
 	P.UpdateAll()
@@ -925,9 +925,9 @@ function P.OpenNormalMenu(classid, member)
 				info.text = pre .. pally .. suf
 				info.hasArrow = 1
 				info.value = pally
-				info.checked = (PallyPower_NormalAssignments[pally]
-					and PallyPower_NormalAssignments[pally][classid]
-					and PallyPower_NormalAssignments[pally][classid][tname]) and 1 or nil
+				info.checked = (PallyPowerKronos_NormalAssignments[pally]
+					and PallyPowerKronos_NormalAssignments[pally][classid]
+					and PallyPowerKronos_NormalAssignments[pally][classid][tname]) and 1 or nil
 				UIDropDownMenu_AddButton(info, 1)
 			end
 			info = {}
@@ -943,9 +943,9 @@ function P.OpenNormalMenu(classid, member)
 				pre = "|cff999999"
 				suf = "|r"
 			end
-			local current = (PallyPower_NormalAssignments[pally]
-				and PallyPower_NormalAssignments[pally][classid]
-				and PallyPower_NormalAssignments[pally][classid][tname]) or 0
+			local current = (PallyPowerKronos_NormalAssignments[pally]
+				and PallyPowerKronos_NormalAssignments[pally][classid]
+				and PallyPowerKronos_NormalAssignments[pally][classid][tname]) or 0
 			info = {}
 			info.text = pre .. "(none)" .. suf
 			info.checked = (current == 0) and 1 or nil
@@ -999,11 +999,11 @@ end
 function P.ClearAssignments()
 	P.SendMessage("CLEAR")
 	if P.IAmPromoted() then
-		for name in pairs(PallyPower_Assignments) do PallyPower_Assignments[name] = {} end
-		for name in pairs(PallyPower_NormalAssignments) do PallyPower_NormalAssignments[name] = {} end
+		for name in pairs(PallyPowerKronos_Assignments) do PallyPowerKronos_Assignments[name] = {} end
+		for name in pairs(PallyPowerKronos_NormalAssignments) do PallyPowerKronos_NormalAssignments[name] = {} end
 	else
-		PallyPower_Assignments[P.playerName] = {}
-		PallyPower_NormalAssignments[P.playerName] = {}
+		PallyPowerKronos_Assignments[P.playerName] = {}
+		PallyPowerKronos_NormalAssignments[P.playerName] = {}
 		P.SendMessage("MASSIGN " .. P.playerName .. " -1")
 	end
 	P.UpdateAll()
@@ -1088,7 +1088,7 @@ function P.ProcessScanQueue()
 		if not unit then
 			P.roster = P.scanRoster
 			P.scanRoster = nil
-			P.nextScan = PP112_Options.scanfreq or 10
+			P.nextScan = PallyPowerKronos112_Options.scanfreq or 10
 			P.UpdateAll()
 			return
 		end
@@ -1315,7 +1315,7 @@ function P.CastForClass(classid, forceNormal)
 	end
 	-- Left-click: the class button always uses the CLASS assignment's greater
 	-- blessing, mirroring 1.14's spell1 (greater) / spell2 (normal) split.
-	local blessID = (PallyPower_Assignments[P.playerName] and PallyPower_Assignments[P.playerName][classid]) or 0
+	local blessID = (PallyPowerKronos_Assignments[P.playerName] and PallyPowerKronos_Assignments[P.playerName][classid]) or 0
 	if blessID == 0 then
 		P.Feedback("No blessing assigned for " .. P.ClassLabel[classid])
 		return
@@ -1368,7 +1368,7 @@ function P.CastOnPlayer(classid, member, wantGreater)
 	if not P.isPally or not member then return end
 	local blessID
 	if wantGreater then
-		blessID = (PallyPower_Assignments[P.playerName] and PallyPower_Assignments[P.playerName][classid]) or 0
+		blessID = (PallyPowerKronos_Assignments[P.playerName] and PallyPowerKronos_Assignments[P.playerName][classid]) or 0
 	else
 		blessID = P.GetEffectiveAssignment(P.playerName, classid, member.name)
 	end
@@ -1412,7 +1412,7 @@ function P.Report()
 	SendChatMessage("--- Paladin assignments ---", chan)
 	for name in pairs(AllPallys) do
 		local parts = {}
-		local assigns = PallyPower_Assignments[name]
+		local assigns = PallyPowerKronos_Assignments[name]
 		if assigns then
 			for c = 1, P.MAXCLASSES do
 				local a = assigns[c]
@@ -1469,14 +1469,14 @@ function P.MakeLabel(parent, fontObject, justify)
 end
 
 function P.SavePosition(frame, xkey, ykey)
-	PP112_Options[xkey] = frame:GetLeft()
-	PP112_Options[ykey] = frame:GetTop()
+	PallyPowerKronos112_Options[xkey] = frame:GetLeft()
+	PallyPowerKronos112_Options[ykey] = frame:GetTop()
 end
 
 function P.RestorePosition(frame, xkey, ykey, defx, defy)
 	frame:ClearAllPoints()
-	if PP112_Options[xkey] and PP112_Options[ykey] then
-		frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", PP112_Options[xkey], PP112_Options[ykey])
+	if PallyPowerKronos112_Options[xkey] and PallyPowerKronos112_Options[ykey] then
+		frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", PallyPowerKronos112_Options[xkey], PallyPowerKronos112_Options[ykey])
 	else
 		frame:SetPoint("CENTER", UIParent, "CENTER", defx or 0, defy or 0)
 	end
@@ -1489,7 +1489,7 @@ P.BTN_W, P.BTN_H = 100, 34
 
 function P.BuildPopup()
 	P.Popup = CreateFrame("Frame", "PallyPowerPopup112", UIParent)
-	P.Popup:SetScale(PP112_Options.scale or 0.9)
+	P.Popup:SetScale(PallyPowerKronos112_Options.scale or 0.9)
 	P.Popup:SetWidth(P.BTN_W)
 	P.Popup:SetFrameStrata("DIALOG")
 	P.Popup:Hide()
@@ -1640,7 +1640,7 @@ end
 function P.ShowPopup(classRow)
 	P.Popup.classid = classRow.classid
 	P.Popup:ClearAllPoints()
-	if PP112_Options.flyoutleft then
+	if PallyPowerKronos112_Options.flyoutleft then
 		P.Popup:SetPoint("TOPRIGHT", classRow, "TOPLEFT", 0, 0)
 	else
 		P.Popup:SetPoint("TOPLEFT", classRow, "TOPRIGHT", 0, 0)
@@ -1653,7 +1653,7 @@ function P.BuildBar()
 	P.Bar = CreateFrame("Frame", "PallyPowerBar112", UIParent)
 	P.Bar:SetWidth(P.BTN_W)
 	P.Bar:SetHeight(20 + P.BTN_H)
-	P.Bar:SetScale(PP112_Options.scale or 0.9)
+	P.Bar:SetScale(PallyPowerKronos112_Options.scale or 0.9)
 	P.Bar:SetMovable(true)
 	P.Bar:SetClampedToScreen(true)
 
@@ -1669,7 +1669,7 @@ function P.BuildBar()
 	title.text:SetPoint("CENTER", title, "CENTER", 0, 0)
 	title.text:SetText("Pally Buffs")
 	title:SetScript("OnDragStart", function()
-		if not PP112_Options.locked then P.Bar:StartMoving() end
+		if not PallyPowerKronos112_Options.locked then P.Bar:StartMoving() end
 	end)
 	title:SetScript("OnDragStop", function()
 		P.Bar:StopMovingOrSizing()
@@ -1748,7 +1748,7 @@ end
 
 function P.UpdateBar()
 	if not P.Bar then return end
-	if not P.isPally or (not P.GroupChannel() and not PP112_Options.showsolo) then
+	if not P.isPally or (not P.GroupChannel() and not PallyPowerKronos112_Options.showsolo) then
 		P.Bar:Hide()
 		return
 	end
@@ -1922,7 +1922,7 @@ function P.BuildConfig()
 	P.Config = CreateFrame("Frame", "PallyPowerConfig112", UIParent)
 	P.Config:SetWidth(P.GRID_LEFT + P.MAXCLASSES * P.COL_W + 8)
 	P.Config:SetHeight(400)
-	P.Config:SetScale(PP112_Options.scale or 0.9)
+	P.Config:SetScale(PallyPowerKronos112_Options.scale or 0.9)
 	P.Config:SetFrameStrata("HIGH")
 	P.Config:SetMovable(true)
 	P.Config:EnableMouse(true)
@@ -2043,9 +2043,9 @@ function P.BuildConfig()
 					-- 1.14: right-click clears every paladin's 5-min assignment
 					-- on this player (that we have permission to edit)
 					for pally in pairs(AllPallys) do
-						local has = PallyPower_NormalAssignments[pally]
-							and PallyPower_NormalAssignments[pally][this.classid]
-							and PallyPower_NormalAssignments[pally][this.classid][this.member.name]
+						local has = PallyPowerKronos_NormalAssignments[pally]
+							and PallyPowerKronos_NormalAssignments[pally][this.classid]
+							and PallyPowerKronos_NormalAssignments[pally][this.classid][this.member.name]
 						if has and P.CanControl(pally) then
 							P.SetNormalAssignmentFor(pally, this.classid, this.member.name, 0)
 						end
@@ -2174,11 +2174,11 @@ function P.BuildConfig()
 				if not pname then return end
 				if arg1 == "RightButton" then
 					if not P.CanControl(pname) then return end
-					if not PallyPower_Assignments[pname] then PallyPower_Assignments[pname] = {} end
+					if not PallyPowerKronos_Assignments[pname] then PallyPowerKronos_Assignments[pname] = {} end
 					if IsShiftKeyDown() then
 						P.MassAssign(pname, 0)
 					else
-						PallyPower_Assignments[pname][this.classid] = 0
+						PallyPowerKronos_Assignments[pname][this.classid] = 0
 						P.BroadcastAssignment(pname, this.classid)
 						P.UpdateAll()
 					end
@@ -2204,7 +2204,7 @@ function P.BuildConfig()
 				if not pname then return end
 				GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
 				GameTooltip:SetText(pname .. " -> " .. P.ClassLabel[this.classid], 1, 1, 1)
-				local a = PallyPower_Assignments[pname] and PallyPower_Assignments[pname][this.classid]
+				local a = PallyPowerKronos_Assignments[pname] and PallyPowerKronos_Assignments[pname][this.classid]
 				if a and a > 0 then
 					GameTooltip:AddLine(P.Blessings[a].key, 0.8, 0.8, 1)
 				else
@@ -2256,9 +2256,9 @@ function P.BuildConfig()
 	MakeButton("PallyPowerConfig112Clear", "Clear", 246, function() P.ClearAssignments() end)
 	MakeButton("PallyPowerConfig112Options", "Options", 352, function() PallyPower.ToggleOptions() end)
 	P.Config.freeCheck = P.MakeCheck(P.Config, "PallyPowerConfig112Free", "Free Assignment", 0, 0,
-		function() return PP112_Options.freeassign end,
+		function() return PallyPowerKronos112_Options.freeassign end,
 		function(v)
-			PP112_Options.freeassign = v
+			PallyPowerKronos112_Options.freeassign = v
 			P.SendSelf()
 		end)
 	P.Config.freeCheck:ClearAllPoints()
@@ -2301,32 +2301,32 @@ P.BuildOptions = function()
 	close:SetScript("OnClick", function() P.Options:Hide() end)
 
 	P.MakeCheck(P.Options, "PallyPowerOptions112Lock", "Lock the buff bar", 14, -34,
-		function() return PP112_Options.locked end,
-		function(v) PP112_Options.locked = v end)
+		function() return PallyPowerKronos112_Options.locked end,
+		function(v) PallyPowerKronos112_Options.locked = v end)
 	P.MakeCheck(P.Options, "PallyPowerOptions112Solo", "Show the buff bar when solo", 14, -60,
-		function() return PP112_Options.showsolo end,
+		function() return PallyPowerKronos112_Options.showsolo end,
 		function(v)
-			PP112_Options.showsolo = v
+			PallyPowerKronos112_Options.showsolo = v
 			P.UpdateBar()
 		end)
 	P.MakeCheck(P.Options, "PallyPowerOptions112FlyoutLeft", "Flyout opens to the left", 14, -86,
-		function() return PP112_Options.flyoutleft end,
+		function() return PallyPowerKronos112_Options.flyoutleft end,
 		function(v)
-			PP112_Options.flyoutleft = v
+			PallyPowerKronos112_Options.flyoutleft = v
 			if P.Popup then P.Popup:Hide() end
 		end)
 
 	P.MakeSlider(P.Options, "PallyPowerOptions112Scale", "Window scale", 20, -134, 0.5, 1.5, 0.05, "%.2f",
-		function() return PP112_Options.scale or 0.9 end,
+		function() return PallyPowerKronos112_Options.scale or 0.9 end,
 		function(v)
-			PP112_Options.scale = v
+			PallyPowerKronos112_Options.scale = v
 			if P.Bar then P.Bar:SetScale(v) end
 			if P.Popup then P.Popup:SetScale(v) end
 			if P.Config then P.Config:SetScale(v) end
 		end)
 	P.MakeSlider(P.Options, "PallyPowerOptions112Scan", "Buff scan frequency (seconds)", 20, -188, 2, 30, 1, "%d",
-		function() return PP112_Options.scanfreq or 10 end,
-		function(v) PP112_Options.scanfreq = v end)
+		function() return PallyPowerKronos112_Options.scanfreq or 10 end,
+		function(v) PallyPowerKronos112_Options.scanfreq = v end)
 end
 
 function PallyPower.ToggleOptions()
@@ -2365,7 +2365,7 @@ function P.UpdateConfig()
 				-- lesser (personal) blessing icon: OWN assignment bright,
 				-- another paladin's dimmed - same rule as the 1.14 build
 				local lesser, ownAssign = nil, false
-				local own = PallyPower_NormalAssignments[P.playerName]
+				local own = PallyPowerKronos_NormalAssignments[P.playerName]
 				own = own and own[c] and own[c][m.name]
 				if own and own > 0 then
 					lesser = own
@@ -2374,7 +2374,7 @@ function P.UpdateConfig()
 					-- full coverage view is for the raid lead/assist only;
 					-- a regular paladin's list stays "my casts only"
 					for pally in pairs(AllPallys) do
-						local na = PallyPower_NormalAssignments[pally]
+						local na = PallyPowerKronos_NormalAssignments[pally]
 						na = na and na[c] and na[c][m.name]
 						if na and na > 0 then
 							lesser = na
@@ -2486,7 +2486,7 @@ function P.UpdateConfig()
 			end
 			for c = 1, P.MAXCLASSES do
 				local cell = row.cells[c]
-				local a = PallyPower_Assignments[name] and PallyPower_Assignments[name][c]
+				local a = PallyPowerKronos_Assignments[name] and PallyPowerKronos_Assignments[name][c]
 				if a and a > 0 then
 					local b = P.Blessings[a]
 					cell.icon:SetTexture(b.gicon or b.nicon)
@@ -2602,8 +2602,8 @@ driver:SetScript("OnEvent", function()
 				end
 			end
 		end
-		PP112_Options.buffEpoch = saveTbl
-		PP112_Options.buffEpochNormal = saveNormal
+		PallyPowerKronos112_Options.buffEpoch = saveTbl
+		PallyPowerKronos112_Options.buffEpochNormal = saveNormal
 		return
 	end
 
@@ -2611,24 +2611,24 @@ driver:SetScript("OnEvent", function()
 		P.playerName = UnitName("player")
 		P.InitSavedVars()
 		-- restore buff timers saved at the last reload/logout
-		if PP112_Options.buffEpoch then
+		if PallyPowerKronos112_Options.buffEpoch then
 			local now = GetTime()
 			local epoch = time()
-			for name, byBless in pairs(PP112_Options.buffEpoch) do
+			for name, byBless in pairs(PallyPowerKronos112_Options.buffEpoch) do
 				for id, exp in pairs(byBless) do
 					local left = exp - epoch
 					if left > 0 then
 						if not P.buffExpire[name] then P.buffExpire[name] = {} end
 						P.buffExpire[name][id] = now + left
-						local n = PP112_Options.buffEpochNormal
+						local n = PallyPowerKronos112_Options.buffEpochNormal
 						if n and n[name] and n[name][id] then
 							P.SetTrackedGreater(name, id, false)
 						end
 					end
 				end
 			end
-			PP112_Options.buffEpoch = nil
-			PP112_Options.buffEpochNormal = nil
+			PallyPowerKronos112_Options.buffEpoch = nil
+			PallyPowerKronos112_Options.buffEpochNormal = nil
 		end
 		P.SafeCall("startup (spell/inventory scan)", function()
 			P.ScanSpells()
@@ -2754,18 +2754,18 @@ SlashCmdList["PALLYPOWER"] = function(msg)
 	elseif msg == "clear" then
 		P.ClearAssignments()
 	elseif msg == "free" then
-		PP112_Options.freeassign = not PP112_Options.freeassign
+		PallyPowerKronos112_Options.freeassign = not PallyPowerKronos112_Options.freeassign
 		local state = "OFF"
-		if PP112_Options.freeassign then state = "ON" end
+		if PallyPowerKronos112_Options.freeassign then state = "ON" end
 		P.Print("Free assignment is now " .. state)
 		P.SendSelf()
 	elseif msg == "lock" then
-		PP112_Options.locked = not PP112_Options.locked
+		PallyPowerKronos112_Options.locked = not PallyPowerKronos112_Options.locked
 		local state = "unlocked"
-		if PP112_Options.locked then state = "locked" end
+		if PallyPowerKronos112_Options.locked then state = "locked" end
 		P.Print("Buff bar " .. state)
 	elseif msg == "solo" then
-		PP112_Options.showsolo = not PP112_Options.showsolo
+		PallyPowerKronos112_Options.showsolo = not PallyPowerKronos112_Options.showsolo
 		P.UpdateBar()
 	elseif msg == "bar" then
 		if P.Bar then
@@ -2775,7 +2775,7 @@ SlashCmdList["PALLYPOWER"] = function(msg)
 		local _, _, v = string.find(msg, "scale (%d+%.?%d*)")
 		v = tonumber(v)
 		if v and v >= 0.5 and v <= 2 then
-			PP112_Options.scale = v
+			PallyPowerKronos112_Options.scale = v
 			if P.Bar then P.Bar:SetScale(v) end
 			if P.Config then P.Config:SetScale(v) end
 		else

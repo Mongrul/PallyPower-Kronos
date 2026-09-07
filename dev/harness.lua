@@ -323,11 +323,11 @@ run("incoming SELF (old 1.12 wire format)", function()
 end)
 run("incoming NASSIGN on PLPWRX (proxy bypass)", function()
 	fire("CHAT_MSG_ADDON", "PLPWRX", "NASSIGN Tanky 1 Tanky 6", "PARTY", "Tanky")
-	assert(PallyPower_NormalAssignments["Tanky"][1]["Tanky"] == 6, "PLPWRX NASSIGN not applied")
+	assert(PallyPowerKronos_NormalAssignments["Tanky"][1]["Tanky"] == 6, "PLPWRX NASSIGN not applied")
 end)
 run("incoming NASSIGN on legacy PLPWR still accepted", function()
 	fire("CHAT_MSG_ADDON", "PLPWR", "NASSIGN Tanky 1 Tanky 3", "PARTY", "Tanky")
-	assert(PallyPower_NormalAssignments["Tanky"][1]["Tanky"] == 3, "PLPWR NASSIGN not applied")
+	assert(PallyPowerKronos_NormalAssignments["Tanky"][1]["Tanky"] == 3, "PLPWR NASSIGN not applied")
 end)
 run("incoming ASELF stores aura info", function()
 	fire("CHAT_MSG_ADDON", "PLPWRX", "ASELF 5231nnnnnnnnnn@0", "PARTY", "Tanky")
@@ -355,7 +355,7 @@ run("REQ answer includes ASELF and real COOLDOWNS", function()
 end)
 run("incoming pet ASSIGN on PLPWRX uses modern ids", function()
 	fire("CHAT_MSG_ADDON", "PLPWRX", "ASSIGN Tanky 9 3", "PARTY", "Tanky")
-	assert(PallyPower_Assignments["Tanky"][9] == 3, "tunneled pet assignment not applied")
+	assert(PallyPowerKronos_Assignments["Tanky"][9] == 3, "tunneled pet assignment not applied")
 end)
 run("own pet assignment broadcasts on PLPWRX", function()
 	tick(8, 0.5) -- clear the send-dedupe window
@@ -368,7 +368,7 @@ run("own pet assignment broadcasts on PLPWRX", function()
 	assert(found, "no tunneled pet ASSIGN sent (got none)")
 end)
 run("SELF is followed by a pet assignment repair", function()
-	PallyPower_Assignments["Testpally"][9] = 2
+	PallyPowerKronos_Assignments["Testpally"][9] = 2
 	tick(8, 0.5) -- clear the send-dedupe window
 	local before = #sent
 	fire("CHAT_MSG_ADDON", "PLPWR", "REQ", "PARTY", "Tanky")
@@ -398,7 +398,7 @@ run("bar: click class button", function() click("PallyPowerBar112Class1") end)
 run("bar: click always casts even when everyone is buffed", function()
 	-- assign Might to warriors and mark Tanky as already carrying it; the
 	-- click must still attempt a cast (override), never report "nobody needs"
-	PallyPower_Assignments["Testpally"][1] = 2
+	PallyPowerKronos_Assignments["Testpally"][1] = 2
 	buffs.party1 = {"Interface\\Icons\\Spell_Holy_GreaterBlessingofKings"}
 	tick(25, 0.5) -- let a scan pick up the buff
 	castCount = 0
@@ -410,15 +410,15 @@ run("bar: class click ignores personal assignment (casts greater)", function()
 	-- class assignment Might; Tanky has a PERSONAL Light assignment.
 	-- Left-clicking the class button must cast GREATER Might (book slot 2),
 	-- not the personal 5-min Light - the 1.14 spell1/spell2 split.
-	PallyPower_Assignments["Testpally"][1] = 2
-	PallyPower_NormalAssignments["Testpally"] = PallyPower_NormalAssignments["Testpally"] or {}
-	PallyPower_NormalAssignments["Testpally"][1] = PallyPower_NormalAssignments["Testpally"][1] or {}
-	PallyPower_NormalAssignments["Testpally"][1]["Tanky"] = 5
+	PallyPowerKronos_Assignments["Testpally"][1] = 2
+	PallyPowerKronos_NormalAssignments["Testpally"] = PallyPowerKronos_NormalAssignments["Testpally"] or {}
+	PallyPowerKronos_NormalAssignments["Testpally"][1] = PallyPowerKronos_NormalAssignments["Testpally"][1] or {}
+	PallyPowerKronos_NormalAssignments["Testpally"][1]["Tanky"] = 5
 	tick(25, 0.5)
 	lastCastSlot = nil
 	click("PallyPowerBar112Class1")
 	assert(lastCastSlot == 2, "expected Greater Might (book slot 2), got slot " .. tostring(lastCastSlot))
-	PallyPower_NormalAssignments["Testpally"][1]["Tanky"] = nil
+	PallyPowerKronos_NormalAssignments["Testpally"][1]["Tanky"] = nil
 end)
 run("bar: hover shows popup", function() enter("PallyPowerBar112Class1") end)
 run("popup: wheel personal assignment", function() wheel("PallyPowerPopup112Row1", 1) end)
@@ -538,7 +538,7 @@ run("close and reopen config", function()
 end)
 run("stealth keeps last-known buff state", function()
 	-- Tanky is buffed and visible; scan records it
-	PallyPower_Assignments["Testpally"][1] = 2
+	PallyPowerKronos_Assignments["Testpally"][1] = 2
 	buffs.party1 = {"Interface\\Icons\\Spell_Holy_GreaterBlessingofKings"}
 	tick(25, 0.5)
 	-- Tanky stealths: no auras visible, but the buff must not vanish
@@ -560,10 +560,10 @@ run("hostile ids on the bypass prefix are clamped, bar keeps updating", function
 	fire("CHAT_MSG_ADDON", "PLPWRX", "ASSIGN Testpally 3.5 2", "PARTY", "Tanky")
 	fire("CHAT_MSG_ADDON", "PLPWRX", "NASSIGN Testpally 1 Tanky 99", "PARTY", "Tanky")
 	fire("CHAT_MSG_ADDON", "PLPWR", "PASSIGN Testpally@99999999", "PARTY", "Tanky")
-	assert(PallyPower_Assignments["Testpally"][9] == 0, "pet id 42 not clamped")
-	assert(PallyPower_Assignments["Testpally"][3.5] == nil, "fractional class stored")
-	assert(not (PallyPower_NormalAssignments["Testpally"][1] and PallyPower_NormalAssignments["Testpally"][1]["Tanky"]), "normal id 99 not clamped")
-	for i = 1, 8 do assert(PallyPower_Assignments["Testpally"][i] == 0, "PASSIGN digit 9 stored at " .. i) end
+	assert(PallyPowerKronos_Assignments["Testpally"][9] == 0, "pet id 42 not clamped")
+	assert(PallyPowerKronos_Assignments["Testpally"][3.5] == nil, "fractional class stored")
+	assert(not (PallyPowerKronos_NormalAssignments["Testpally"][1] and PallyPowerKronos_NormalAssignments["Testpally"][1]["Tanky"]), "normal id 99 not clamped")
+	for i = 1, 8 do assert(PallyPowerKronos_Assignments["Testpally"][i] == 0, "PASSIGN digit 9 stored at " .. i) end
 	tick(5, 1.0)
 	enter("PallyPowerBar112Class1")
 	tick(3, 1.0)
@@ -579,7 +579,7 @@ run("non-leader clear sends none (-1), never Wisdom (0)", function()
 	assert(found and string.find(found, " %-1$"), "expected MASSIGN ... -1, got " .. tostring(found))
 end)
 run("warrior with zero auras reads missing, rogue keeps the blackout", function()
-	PallyPower_Assignments["Testpally"][1] = 2
+	PallyPowerKronos_Assignments["Testpally"][1] = 2
 	buffs.party1 = {"Interface\\Icons\\Spell_Holy_GreaterBlessingofKings"}
 	fire("CHAT_MSG_SPELL_PERIODIC_PARTY_BUFFS", "Tanky gains Greater Blessing of Might.")
 	tick(25, 0.5)
@@ -594,8 +594,8 @@ run("SELF keeps the pet slot and normals from the other prefix", function()
 	fire("CHAT_MSG_ADDON", "PLPWRX", "ASSIGN Tanky 9 3", "PARTY", "Tanky")
 	fire("CHAT_MSG_ADDON", "PLPWRX", "NASSIGN Tanky 1 Tanky 6", "PARTY", "Tanky")
 	fire("CHAT_MSG_ADDON", "PLPWR", "SELF 6275103010nn@n4nnnnnn", "PARTY", "Tanky")
-	assert(PallyPower_Assignments["Tanky"][9] == 3, "SELF wiped the pet slot")
-	assert(PallyPower_NormalAssignments["Tanky"][1]["Tanky"] == 6, "SELF wiped the normal assignment")
+	assert(PallyPowerKronos_Assignments["Tanky"][9] == 3, "SELF wiped the pet slot")
+	assert(PallyPowerKronos_NormalAssignments["Tanky"][1]["Tanky"] == 6, "SELF wiped the normal assignment")
 end)
 run("status that arrives before SELF is applied after it", function()
 	AllPallys["Newguy"] = nil
@@ -608,10 +608,10 @@ end)
 run("buff timers persist across reload", function()
 	fire("CHAT_MSG_SPELL_PERIODIC_PARTY_BUFFS", "Tanky gains Greater Blessing of Might.")
 	fire("PLAYER_LOGOUT")
-	assert(PP112_Options.buffEpoch and PP112_Options.buffEpoch["Tanky"], "no wall-clock timers saved on logout")
+	assert(PallyPowerKronos112_Options.buffEpoch and PallyPowerKronos112_Options.buffEpoch["Tanky"], "no wall-clock timers saved on logout")
 	-- a fresh login restores and consumes the saved table
 	fire("PLAYER_LOGIN")
-	assert(PP112_Options.buffEpoch == nil, "saved timers not consumed on login")
+	assert(PallyPowerKronos112_Options.buffEpoch == nil, "saved timers not consumed on login")
 end)
 run("final ticks", function() tick(10, 1.0) end)
 run("anchor audit: no visible unanchored frames", function()

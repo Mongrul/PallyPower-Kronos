@@ -23,9 +23,9 @@ local classlist, classes = {}, {}
 PallyPower.player = UnitName("player")
 PallyPower.realm = GetRealmName()
 
-PallyPower_Assignments = {}
-PallyPower_NormalAssignments = {}
-PallyPower_AuraAssignments = {}
+PallyPowerKronos_Assignments = {}
+PallyPowerKronos_NormalAssignments = {}
+PallyPowerKronos_AuraAssignments = {}
 
 AllPallys = {}
 SyncList = {}
@@ -84,9 +84,9 @@ end
 -------------------------------------------------------------------
 function PallyPower:OnInitialize()
 	if select(2, UnitClass("player")) == "PALADIN" then
-		self.db = LibStub("AceDB-3.0"):New("PallyPowerDB", PALLYPOWER_DEFAULT_VALUES, "Default")
+		self.db = LibStub("AceDB-3.0"):New("PallyPowerKronosDB", PALLYPOWER_DEFAULT_VALUES, "Default")
 	else
-		self.db = LibStub("AceDB-3.0"):New("PallyPowerDB", PALLYPOWER_OTHER_VALUES, "Other")
+		self.db = LibStub("AceDB-3.0"):New("PallyPowerKronosDB", PALLYPOWER_OTHER_VALUES, "Other")
 		self.db:SetProfile("Other")
 	end
 
@@ -241,12 +241,12 @@ end
 -- Config Window Functionality
 -------------------------------------------------------------------
 function PallyPower:Purge()
-	PallyPower_Assignments = nil
-	PallyPower_NormalAssignments = nil
-	PallyPower_AuraAssignments = nil
-	PallyPower_Assignments = {}
-	PallyPower_NormalAssignments = {}
-	PallyPower_AuraAssignments = {}
+	PallyPowerKronos_Assignments = nil
+	PallyPowerKronos_NormalAssignments = nil
+	PallyPowerKronos_AuraAssignments = nil
+	PallyPowerKronos_Assignments = {}
+	PallyPowerKronos_NormalAssignments = {}
+	PallyPowerKronos_AuraAssignments = {}
 end
 
 function PallyPower:Reset()
@@ -441,8 +441,8 @@ function PallyPowerBlessings_ShowCredits(self)
 end
 
 function GetNormalBlessings(pname, class, tname)
-	if PallyPower_NormalAssignments[pname] and PallyPower_NormalAssignments[pname][class] then
-		local blessing = PallyPower_NormalAssignments[pname][class][tname]
+	if PallyPowerKronos_NormalAssignments[pname] and PallyPowerKronos_NormalAssignments[pname][class] then
+		local blessing = PallyPowerKronos_NormalAssignments[pname][class][tname]
 		if blessing then
 			return tostring(blessing)
 		else
@@ -452,26 +452,26 @@ function GetNormalBlessings(pname, class, tname)
 end
 
 function SetNormalBlessings(pname, class, tname, value)
-	if not PallyPower_NormalAssignments[pname] then
-		PallyPower_NormalAssignments[pname] = {}
+	if not PallyPowerKronos_NormalAssignments[pname] then
+		PallyPowerKronos_NormalAssignments[pname] = {}
 	end
-	if not PallyPower_NormalAssignments[pname][class] then
-		PallyPower_NormalAssignments[pname][class] = {}
+	if not PallyPowerKronos_NormalAssignments[pname][class] then
+		PallyPowerKronos_NormalAssignments[pname][class] = {}
 	end
 	if value == 0 then
 		value = nil
 	end
-	PallyPower_NormalAssignments[pname][class][tname] = value
+	PallyPowerKronos_NormalAssignments[pname][class][tname] = value
 	local msgQueue
 	msgQueue =
 		C_Timer.NewTimer(
 		2.0,
 		function()
-			if PallyPower_NormalAssignments and PallyPower_NormalAssignments[pname] and PallyPower_NormalAssignments[pname][class] and PallyPower_NormalAssignments[pname][class][tname] then
-				if PallyPower_NormalAssignments[pname][class][tname] == nil then
+			if PallyPowerKronos_NormalAssignments and PallyPowerKronos_NormalAssignments[pname] and PallyPowerKronos_NormalAssignments[pname][class] and PallyPowerKronos_NormalAssignments[pname][class][tname] then
+				if PallyPowerKronos_NormalAssignments[pname][class][tname] == nil then
 					value = 0
 				else
-					value = PallyPower_NormalAssignments[pname][class][tname]
+					value = PallyPowerKronos_NormalAssignments[pname][class][tname]
 				end
 				PallyPower:SendMessage("NASSIGN " .. pname .. " " .. class .. " " .. tname .. " " .. value)
 				PallyPower:UpdateLayout()
@@ -531,7 +531,7 @@ function PallyPowerGrid_NormalBlessingMenu(btn, mouseBtn, pname, class)
 				hasArrow = true,
 				menuList = pallyMenu,
 				checked = function()
-					if PallyPower_NormalAssignments[pally] and PallyPower_NormalAssignments[pally][class] and PallyPower_NormalAssignments[pally][class][pname] then
+					if PallyPowerKronos_NormalAssignments[pally] and PallyPowerKronos_NormalAssignments[pally][class] and PallyPowerKronos_NormalAssignments[pally][class][pname] then
 						return true
 					else
 						SetNormalBlessings(pally, class, pname, 0)
@@ -546,8 +546,8 @@ function PallyPowerGrid_NormalBlessingMenu(btn, mouseBtn, pname, class)
 
 	elseif (mouseBtn == "RightButton") then
 		for pally in pairs(AllPallys) do
-			if PallyPower_NormalAssignments[pally] and PallyPower_NormalAssignments[pally][class] and PallyPower_NormalAssignments[pally][class][pname] then
-				PallyPower_NormalAssignments[pally][class][pname] = nil
+			if PallyPowerKronos_NormalAssignments[pally] and PallyPowerKronos_NormalAssignments[pally][class] and PallyPowerKronos_NormalAssignments[pally][class][pname] then
+				PallyPowerKronos_NormalAssignments[pally][class][pname] = nil
 			end
 			PallyPower:SendMessage("NASSIGN " .. pally .. " " .. class .. " " .. pname .. " 0")
 			PallyPower:UpdateLayout()
@@ -587,8 +587,8 @@ function PallyPowerGridButton_OnClick(btn, mouseBtn)
 		return false
 	end
 	if (mouseBtn == "RightButton") then
-		if PallyPower_Assignments and PallyPower_Assignments[pname] and PallyPower_Assignments[pname][class] then
-			PallyPower_Assignments[pname][class] = 0
+		if PallyPowerKronos_Assignments and PallyPowerKronos_Assignments[pname] and PallyPowerKronos_Assignments[pname][class] then
+			PallyPowerKronos_Assignments[pname][class] = 0
 		end
 		PallyPower:SendMessage("ASSIGN " .. pname .. " " .. class .. " -1")
 		PallyPower:UpdateLayout()
@@ -663,7 +663,7 @@ function PallyPowerBlessingsGrid_Update(self, elapsed)
 						-- regular paladin's list stays "my casts only"
 						local otherBless
 						if UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") then
-							for pally, byClass in pairs(PallyPower_NormalAssignments) do
+							for pally, byClass in pairs(PallyPowerKronos_NormalAssignments) do
 								if pally ~= PallyPower.player and byClass[i] and byClass[i][unit.name] and byClass[i][unit.name] > 0 then
 									otherBless = byClass[i][unit.name]
 									break
@@ -691,8 +691,8 @@ function PallyPowerBlessingsGrid_Update(self, elapsed)
 		for i, name in pairs(SyncList) do
 			local fname = "PallyPowerBlessingsFramePlayer" .. i
 			local SkillInfo = AllPallys[name]
-			local BuffInfo = PallyPower_Assignments[name]
-			local NormalBuffInfo = PallyPower_NormalAssignments[name]
+			local BuffInfo = PallyPowerKronos_Assignments[name]
+			local NormalBuffInfo = PallyPowerKronos_NormalAssignments[name]
 			_G[fname .. "Name"]:SetText(name)
 			if PallyPower:CanControl(name) then
 				_G[fname .. "Name"]:SetTextColor(1, 1, 1)
@@ -744,7 +744,7 @@ function PallyPowerBlessingsGrid_Update(self, elapsed)
 					_G[fname .. "ASkill" .. id]:SetText("")
 				end
 			end
-			local aura = PallyPower_AuraAssignments[name]
+			local aura = PallyPowerKronos_AuraAssignments[name]
 			if (aura and aura > 0) then
 				_G[fname .. "Aura1Icon"]:SetTexture(PallyPower.AuraIcons[aura])
 			else
@@ -876,15 +876,15 @@ end
 -------------------------------------------------------------------
 function PallyPower:ReportChannels()
 	local channels = {GetChannelList()}
-	PallyPower_ChanNames = {}
-	PallyPower_ChanNames[0] = "None"
+	PallyPowerKronos_ChanNames = {}
+	PallyPowerKronos_ChanNames[0] = "None"
 	for i = 1, #channels / 3 do
 		local chanName = channels[i * 3 - 1]
 		if chanName ~= "LookingForGroup" and chanName ~= "General" and chanName ~= "Trade" and chanName ~= "LocalDefense" and chanName ~= "WorldDefense" and chanName ~= "GuildRecruitment" then
-			PallyPower_ChanNames[i] = chanName
+			PallyPowerKronos_ChanNames[i] = chanName
 		end
 	end
-	return PallyPower_ChanNames
+	return PallyPowerKronos_ChanNames
 end
 
 function PallyPower:Report(type, chanNum)
@@ -909,7 +909,7 @@ function PallyPower:Report(type, chanNum)
 							list[i] = 0
 						end
 						for id = 1, PALLYPOWER_MAXCLASSES do
-							local bid = PallyPower_Assignments[name][id]
+							local bid = PallyPowerKronos_Assignments[name][id]
 							if bid and bid > 0 then
 								list[bid] = list[bid] + 1
 							end
@@ -958,7 +958,7 @@ function PallyPower:Report(type, chanNum)
 					list[i] = 0
 				end
 				for id = 1, PALLYPOWER_MAXCLASSES do
-					local bid = PallyPower_Assignments[name][id]
+					local bid = PallyPowerKronos_Assignments[name][id]
 					if bid and bid > 0 then
 						list[bid] = list[bid] + 1
 					end
@@ -995,15 +995,15 @@ function PallyPower:PerformCycle(name, class, skipzero)
 	if shift then
 		class = 5
 	end
-	if not PallyPower_Assignments[name] then
-		PallyPower_Assignments[name] = {}
+	if not PallyPowerKronos_Assignments[name] then
+		PallyPowerKronos_Assignments[name] = {}
 	end
-	if not PallyPower_Assignments[name][class] then
+	if not PallyPowerKronos_Assignments[name][class] then
 		cur = 0
 	else
-		cur = PallyPower_Assignments[name][class]
+		cur = PallyPowerKronos_Assignments[name][class]
 	end
-	PallyPower_Assignments[name][class] = 0
+	PallyPowerKronos_Assignments[name][class] = 0
 	for testB = cur + 1, 7 do
 		cur = testB
 		if self:CanBuff(name, testB) and (self:NeedsBuff(class, testB) or shift or control) then
@@ -1033,26 +1033,26 @@ function PallyPower:PerformCycle(name, class, skipzero)
 	end
 	if shift then
 		for testC = 1, PALLYPOWER_MAXCLASSES do
-			PallyPower_Assignments[name][testC] = cur
+			PallyPowerKronos_Assignments[name][testC] = cur
 		end
 		local msgQueue
 		msgQueue =
 			C_Timer.NewTimer(
 			2.0,
 			function()
-				self:SendMessage("MASSIGN " .. name .. " " .. self:WireSkill(PallyPower_Assignments[name][class]))
+				self:SendMessage("MASSIGN " .. name .. " " .. self:WireSkill(PallyPowerKronos_Assignments[name][class]))
 				self:UpdateLayout()
 				msgQueue:Cancel()
 			end
 		)
 	else
-		PallyPower_Assignments[name][class] = cur
+		PallyPowerKronos_Assignments[name][class] = cur
 		local msgQueue
 		msgQueue =
 			C_Timer.NewTimer(
 			2.0,
 			function()
-				self:SendMessage("ASSIGN " .. name .. " " .. class .. " " .. self:WireSkill(PallyPower_Assignments[name][class]))
+				self:SendMessage("ASSIGN " .. name .. " " .. class .. " " .. self:WireSkill(PallyPowerKronos_Assignments[name][class]))
 				self:UpdateLayout()
 				msgQueue:Cancel()
 			end
@@ -1067,13 +1067,13 @@ function PallyPower:PerformCycleBackwards(name, class, skipzero)
 	if shift then
 		class = 5
 	end
-	if name and not PallyPower_Assignments[name] then
-		PallyPower_Assignments[name] = {}
+	if name and not PallyPowerKronos_Assignments[name] then
+		PallyPowerKronos_Assignments[name] = {}
 	end
-	if not PallyPower_Assignments[name][class] then
+	if not PallyPowerKronos_Assignments[name][class] then
 		cur = 7
 	else
-		cur = PallyPower_Assignments[name][class]
+		cur = PallyPowerKronos_Assignments[name][class]
 		local testB
 		if self:CanBuff(name, 1) then
 			if self.opt.SmartBuffs and (class == 1 or class == 2) then
@@ -1094,7 +1094,7 @@ function PallyPower:PerformCycleBackwards(name, class, skipzero)
 			cur = 7
 		end
 	end
-	PallyPower_Assignments[name][class] = 0
+	PallyPowerKronos_Assignments[name][class] = 0
 	for testC = cur - 1, 0, -1 do
 		cur = testC
 		if self:CanBuff(name, testC) and (self:NeedsBuff(class, testC) or shift or control) then
@@ -1105,26 +1105,26 @@ function PallyPower:PerformCycleBackwards(name, class, skipzero)
 	end
 	if shift then
 		for testC = 1, PALLYPOWER_MAXCLASSES do
-			PallyPower_Assignments[name][testC] = cur
+			PallyPowerKronos_Assignments[name][testC] = cur
 		end
 		local msgQueue
 		msgQueue =
 			C_Timer.NewTimer(
 			2.0,
 			function()
-				self:SendMessage("MASSIGN " .. name .. " " .. self:WireSkill(PallyPower_Assignments[name][class]))
+				self:SendMessage("MASSIGN " .. name .. " " .. self:WireSkill(PallyPowerKronos_Assignments[name][class]))
 				self:UpdateLayout()
 				msgQueue:Cancel()
 			end
 		)
 	else
-		PallyPower_Assignments[name][class] = cur
+		PallyPowerKronos_Assignments[name][class] = cur
 		local msgQueue
 		msgQueue =
 			C_Timer.NewTimer(
 			2.0,
 			function()
-				self:SendMessage("ASSIGN " .. name .. " " .. class .. " " .. self:WireSkill(PallyPower_Assignments[name][class]))
+				self:SendMessage("ASSIGN " .. name .. " " .. class .. " " .. self:WireSkill(PallyPowerKronos_Assignments[name][class]))
 				self:UpdateLayout()
 				msgQueue:Cancel()
 			end
@@ -1138,8 +1138,8 @@ function PallyPower:PerformPlayerCycle(delta, pname, class)
 	if not isPally then
 		return
 	end
-	if PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][pname] then
-		blessing = PallyPower_NormalAssignments[self.player][class][pname]
+	if PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][pname] then
+		blessing = PallyPowerKronos_NormalAssignments[self.player][class][pname]
 	end
 	local count
 	-- Can't give Blessing of Sacrifice to yourself
@@ -1161,7 +1161,7 @@ end
 
 function PallyPower:AssignPlayerAsClass(pname, pclass, tclass)
 	local greater, target, targetsorted, freepallies = {}, {}, {}, {}
-	for pally, classes in pairs(PallyPower_Assignments) do
+	for pally, classes in pairs(PallyPowerKronos_Assignments) do
 		if AllPallys[pally] and classes[tclass] and classes[tclass] > 0 then
 			target[classes[tclass]] = pally
 			tinsert(targetsorted, classes[tclass])
@@ -1174,8 +1174,8 @@ function PallyPower:AssignPlayerAsClass(pname, pclass, tclass)
 		end
 	)
 	for pally, info in pairs(AllPallys) do
-		if PallyPower_Assignments[pally] and PallyPower_Assignments[pally][pclass] then
-			local blessing = PallyPower_Assignments[pally][pclass]
+		if PallyPowerKronos_Assignments[pally] and PallyPowerKronos_Assignments[pally][pclass] then
+			local blessing = PallyPowerKronos_Assignments[pally][pclass]
 			greater[blessing] = pally
 			if not target[blessing] then
 				freepallies[pally] = info
@@ -1187,7 +1187,7 @@ function PallyPower:AssignPlayerAsClass(pname, pclass, tclass)
 	for _, blessing in pairs(targetsorted) do
 		if greater[blessing] then
 			local pally = greater[blessing]
-			if PallyPower_NormalAssignments[pally] and PallyPower_NormalAssignments[pally][pclass] and PallyPower_NormalAssignments[pally][pclass][pname] then
+			if PallyPowerKronos_NormalAssignments[pally] and PallyPowerKronos_NormalAssignments[pally][pclass] and PallyPowerKronos_NormalAssignments[pally][pclass][pname] then
 				SetNormalBlessings(pally, pclass, pname, 0)
 			end
 		else
@@ -1309,7 +1309,7 @@ function PallyPower:NeedsBuff(class, test, playerName)
 		end
 	end
 	if playerName then
-		for pname, classes in pairs(PallyPower_NormalAssignments) do
+		for pname, classes in pairs(PallyPowerKronos_NormalAssignments) do
 			if AllPallys[pname] and not pname == self.player then
 				for _, tnames in pairs(classes) do
 					for _, blessing_id in pairs(tnames) do
@@ -1321,7 +1321,7 @@ function PallyPower:NeedsBuff(class, test, playerName)
 			end
 		end
 	end
-	for name, skills in pairs(PallyPower_Assignments) do
+	for name, skills in pairs(PallyPowerKronos_Assignments) do
 		if (AllPallys[name]) and ((skills[class]) and (skills[class] == test)) then
 			return false
 		end
@@ -1524,13 +1524,13 @@ function PallyPower:SendSelf(sender)
 		end
 	end
 	s = s .. "@"
-	if not PallyPower_Assignments[self.player] then
-		PallyPower_Assignments[self.player] = {}
+	if not PallyPowerKronos_Assignments[self.player] then
+		PallyPowerKronos_Assignments[self.player] = {}
 		for i = 1, PALLYPOWER_MAXCLASSES do
-			PallyPower_Assignments[self.player][i] = 0
+			PallyPowerKronos_Assignments[self.player][i] = 0
 		end
 	end
-	local BuffInfo = PallyPower_Assignments[self.player]
+	local BuffInfo = PallyPowerKronos_Assignments[self.player]
 	for i = 1, PALLYPOWER_MAXCLASSES do
 		if not BuffInfo[i] or BuffInfo[i] == 0 then
 			s = s .. "n"
@@ -1558,18 +1558,18 @@ function PallyPower:SendSelf(sender)
 			s = s .. format("%x%x", AuraInfo[i].rank, AuraInfo[i].talent)
 		end
 	end
-	if not PallyPower_AuraAssignments[self.player] then
-		PallyPower_AuraAssignments[self.player] = 0
+	if not PallyPowerKronos_AuraAssignments[self.player] then
+		PallyPowerKronos_AuraAssignments[self.player] = 0
 	end
-	s = s .. "@" .. PallyPower_AuraAssignments[self.player]
+	s = s .. "@" .. PallyPowerKronos_AuraAssignments[self.player]
 	if sender and not leader then
 		self:SendMessage("ASELF " .. s, "WHISPER", sender)
 	else
 		self:SendMessage("ASELF " .. s)
 	end
 	local AssignList = {}
-	if PallyPower_NormalAssignments[self.player] then
-		for class_id, tnames in pairs(PallyPower_NormalAssignments[self.player]) do
+	if PallyPowerKronos_NormalAssignments[self.player] then
+		for class_id, tnames in pairs(PallyPowerKronos_NormalAssignments[self.player]) do
 			for tname, blessing_id in pairs(tnames) do
 				tinsert(AssignList, format("%s %s %s %s", self.player, class_id, tname, blessing_id))
 			end
@@ -1731,9 +1731,9 @@ function PallyPower:GROUP_JOINED(event)
 	-- Kronos: keep OWN personal (5-min) assignments - they are saved
 	-- variables and must survive relogs/DCs. Other paladins' entries are
 	-- stale here and get refilled by their NASSIGN rebroadcasts.
-	local ownNormals = PallyPower_NormalAssignments and PallyPower_NormalAssignments[self.player]
-	PallyPower_NormalAssignments = {}
-	PallyPower_NormalAssignments[self.player] = ownNormals
+	local ownNormals = PallyPowerKronos_NormalAssignments and PallyPowerKronos_NormalAssignments[self.player]
+	PallyPowerKronos_NormalAssignments = {}
+	PallyPowerKronos_NormalAssignments[self.player] = ownNormals
 	self:ScanSpells()
 	self:ScanCooldowns()
 	self:ScanInventory()
@@ -1754,10 +1754,10 @@ function PallyPower:GROUP_LEFT(event)
 	AllPallys = {}
 	SyncList = {}
 	-- Kronos: keep OWN personal (5-min) assignments across group changes
-	local ownNormals = PallyPower_NormalAssignments and PallyPower_NormalAssignments[self.player]
-	PallyPower_NormalAssignments = {}
-	PallyPower_NormalAssignments[self.player] = ownNormals
-	for pname in pairs(PallyPower_Assignments) do
+	local ownNormals = PallyPowerKronos_NormalAssignments and PallyPowerKronos_NormalAssignments[self.player]
+	PallyPowerKronos_NormalAssignments = {}
+	PallyPowerKronos_NormalAssignments[self.player] = ownNormals
+	for pname in pairs(PallyPowerKronos_Assignments) do
 		local match = false
 		if pname == self.player then
 			match = true
@@ -1770,7 +1770,7 @@ function PallyPower:GROUP_LEFT(event)
 			end
 		end
 		if match == false then
-			PallyPower_Assignments[pname] = nil
+			PallyPowerKronos_Assignments[pname] = nil
 		end
 	end
 	self:ScanSpells()
@@ -2003,9 +2003,9 @@ function PallyPower:ParseMessage(sender, msg)
 
 	if strfind(msg, "^SELF") then
 		-- normals and the pet slot only ever travel on the other prefix, which may arrive first
-		PallyPower_NormalAssignments[sender] = PallyPower_NormalAssignments[sender] or {}
-		local keepPet = PallyPower_Assignments[sender] and PallyPower_Assignments[sender][9]
-		PallyPower_Assignments[sender] = {}
+		PallyPowerKronos_NormalAssignments[sender] = PallyPowerKronos_NormalAssignments[sender] or {}
+		local keepPet = PallyPowerKronos_Assignments[sender] and PallyPowerKronos_Assignments[sender][9]
+		PallyPowerKronos_Assignments[sender] = {}
 		local old = AllPallys[sender] or {}
 		AllPallys[sender] = {AuraInfo = old.AuraInfo, CooldownInfo = old.CooldownInfo, symbols = old.symbols, freeassign = old.freeassign}
 		self:SyncAdd(sender)
@@ -2027,7 +2027,7 @@ function PallyPower:ParseMessage(sender, msg)
 				elseif tmp == "n" or tmp == "" then
 					tmp = 0
 				end
-				PallyPower_Assignments[sender][i] = tmp + 0
+				PallyPowerKronos_Assignments[sender][i] = tmp + 0
 			end
 		end
 		local pend = kronosPendingStatus[sender]
@@ -2043,13 +2043,13 @@ function PallyPower:ParseMessage(sender, msg)
 		if name ~= sender and not (leader or self.opt.freeassign) then
 			return false
 		end
-		if not PallyPower_Assignments[name] then
-			PallyPower_Assignments[name] = {}
+		if not PallyPowerKronos_Assignments[name] then
+			PallyPowerKronos_Assignments[name] = {}
 		end
 		class = class + 0
 		skill = skill + 0
 		if skill < 0 then skill = 0 end
-		PallyPower_Assignments[name][class] = skill
+		PallyPowerKronos_Assignments[name][class] = skill
 	end
 
 	if strfind(msg, "^PASSIGN") then
@@ -2058,8 +2058,8 @@ function PallyPower:ParseMessage(sender, msg)
 		if name ~= sender and not (leader or self.opt.freeassign) then
 			return false
 		end
-		if not PallyPower_Assignments[name] then
-			PallyPower_Assignments[name] = {}
+		if not PallyPowerKronos_Assignments[name] then
+			PallyPowerKronos_Assignments[name] = {}
 		end
 		if assign then
 			for i = 1, PALLYPOWER_MAXCLASSES do
@@ -2067,7 +2067,7 @@ function PallyPower:ParseMessage(sender, msg)
 				if tmp == "n" or tmp == "" then
 					tmp = 0
 				end
-				PallyPower_Assignments[name][i] = tmp + 0
+				PallyPowerKronos_Assignments[name][i] = tmp + 0
 			end
 		end
 	end
@@ -2078,18 +2078,18 @@ function PallyPower:ParseMessage(sender, msg)
 			if name ~= sender and not (leader or self.opt.freeassign) then
 				return
 			end
-			if not PallyPower_NormalAssignments[name] then
-				PallyPower_NormalAssignments[name] = {}
+			if not PallyPowerKronos_NormalAssignments[name] then
+				PallyPowerKronos_NormalAssignments[name] = {}
 			end
 			class = class + 0
-			if not PallyPower_NormalAssignments[name][class] then
-				PallyPower_NormalAssignments[name][class] = {}
+			if not PallyPowerKronos_NormalAssignments[name][class] then
+				PallyPowerKronos_NormalAssignments[name][class] = {}
 			end
 			skill = skill + 0
 			if skill == 0 then
 				skill = nil
 			end
-			PallyPower_NormalAssignments[name][class][tname] = skill
+			PallyPowerKronos_NormalAssignments[name][class][tname] = skill
 		end
 	end
 
@@ -2099,13 +2099,13 @@ function PallyPower:ParseMessage(sender, msg)
 		if name ~= sender and not (leader or self.opt.freeassign) then
 			return false
 		end
-		if not PallyPower_Assignments[name] then
-			PallyPower_Assignments[name] = {}
+		if not PallyPowerKronos_Assignments[name] then
+			PallyPowerKronos_Assignments[name] = {}
 		end
 		skill = skill + 0
 		if skill < 0 then skill = 0 end
 		for i = 1, PALLYPOWER_MAXCLASSES do
-			PallyPower_Assignments[name][i] = skill
+			PallyPowerKronos_Assignments[name][i] = skill
 		end
 	end
 
@@ -2162,7 +2162,7 @@ function PallyPower:ParseMessage(sender, msg)
 	end
 
 	if strfind(msg, "^ASELF") then
-		PallyPower_AuraAssignments[sender] = 0
+		PallyPowerKronos_AuraAssignments[sender] = 0
 		if AllPallys[sender] then
 			if not AllPallys[sender].AuraInfo then
 				AllPallys[sender].AuraInfo = {}
@@ -2181,7 +2181,7 @@ function PallyPower:ParseMessage(sender, msg)
 				if assign == "n" or assign == "" then
 					assign = 0
 				end
-				PallyPower_AuraAssignments[sender] = assign + 0
+				PallyPowerKronos_AuraAssignments[sender] = assign + 0
 			end
 		end
 	end
@@ -2192,11 +2192,11 @@ function PallyPower:ParseMessage(sender, msg)
 		if name ~= sender and not (leader or self.opt.freeassign) then
 			return false
 		end
-		if not PallyPower_AuraAssignments[name] then
-			PallyPower_AuraAssignments[name] = {}
+		if not PallyPowerKronos_AuraAssignments[name] then
+			PallyPowerKronos_AuraAssignments[name] = {}
 		end
 		aura = aura + 0
-		PallyPower_AuraAssignments[name] = aura
+		PallyPowerKronos_AuraAssignments[name] = aura
 	end
 
 	self:UpdateLayout()
@@ -2232,14 +2232,14 @@ end
 
 function PallyPower:ClearAssignments(sender)
 	local leader = self:CheckLeader(sender)
-	for name in pairs(PallyPower_Assignments) do
+	for name in pairs(PallyPowerKronos_Assignments) do
 		if leader or name == self.player then
 			for i = 1, PALLYPOWER_MAXCLASSES do
-				PallyPower_Assignments[name][i] = 0
+				PallyPowerKronos_Assignments[name][i] = 0
 			end
 		end
 	end
-	for pname, classes in pairs(PallyPower_NormalAssignments) do
+	for pname, classes in pairs(PallyPowerKronos_NormalAssignments) do
 		if leader or pname == self.player then
 			for _, tnames in pairs(classes) do
 				for tname in pairs(tnames) do
@@ -2248,9 +2248,9 @@ function PallyPower:ClearAssignments(sender)
 			end
 		end
 	end
-	for name in pairs(PallyPower_AuraAssignments) do
+	for name in pairs(PallyPowerKronos_AuraAssignments) do
 		if leader or name == self.player then
-			PallyPower_AuraAssignments[name] = 0
+			PallyPowerKronos_AuraAssignments[name] = 0
 		end
 	end
 end
@@ -2368,8 +2368,8 @@ function PallyPower:UpdateRoster()
 				-- Warriors
 				if (class == 1) then
 					if (raidmaintanks[tmp.name] == true) then
-						if PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] == self.opt.mainTankSpellsW then
-							if PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainTankGSpellsW and (raidtank == "MAINTANK" and self.opt.mainTank) then
+						if PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] == self.opt.mainTankSpellsW then
+							if PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainTankGSpellsW and (raidtank == "MAINTANK" and self.opt.mainTank) then
 							else
 								SetNormalBlessings(self.player, class, tmp.name, 0)
 								raidmaintanks[tmp.name] = false
@@ -2377,8 +2377,8 @@ function PallyPower:UpdateRoster()
 						end
 					end
 					if (raidmainassists[tmp.name] == true) then
-						if PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] == self.opt.mainAssistSpellsW then
-							if PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainAssistGSpellsW and (raidtank == "MAINASSIST" and self.opt.mainAssist) then
+						if PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] == self.opt.mainAssistSpellsW then
+							if PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainAssistGSpellsW and (raidtank == "MAINASSIST" and self.opt.mainAssist) then
 							else
 								SetNormalBlessings(self.player, class, tmp.name, 0)
 								raidmainassists[tmp.name] = false
@@ -2386,13 +2386,13 @@ function PallyPower:UpdateRoster()
 						end
 					end
 					if (raidtank == "MAINTANK" and self.opt.mainTank) then
-						if (PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainTankGSpellsW and (raidmaintanks[tmp.name] == false or raidmaintanks[tmp.name] == nil)) or (PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainTankSpellsW and raidmaintanks[tmp.name] == true) then
+						if (PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainTankGSpellsW and (raidmaintanks[tmp.name] == false or raidmaintanks[tmp.name] == nil)) or (PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainTankSpellsW and raidmaintanks[tmp.name] == true) then
 							SetNormalBlessings(self.player, class, tmp.name, self.opt.mainTankSpellsW)
 							raidmaintanks[tmp.name] = true
 						end
 					end
 					if (raidtank == "MAINASSIST" and self.opt.mainAssist) then
-						if (PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainAssistGSpellsW and (raidmainassists[tmp.name] == false or raidmainassists[tmp.name] == nil)) or (PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainAssistSpellsW and raidmainassists[tmp.name] == true) then
+						if (PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainAssistGSpellsW and (raidmainassists[tmp.name] == false or raidmainassists[tmp.name] == nil)) or (PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainAssistSpellsW and raidmainassists[tmp.name] == true) then
 							SetNormalBlessings(self.player, class, tmp.name, self.opt.mainAssistSpellsW)
 							raidmainassists[tmp.name] = true
 						end
@@ -2401,8 +2401,8 @@ function PallyPower:UpdateRoster()
 				-- Druids and Paladins
 				if (class == 4 or class == 5) then
 					if (raidmaintanks[tmp.name] == true) then
-						if PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] == self.opt.mainTankSpellsDP then
-							if PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainTankGSpellsDP and (raidtank == "MAINTANK" and self.opt.mainTank) then
+						if PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] == self.opt.mainTankSpellsDP then
+							if PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainTankGSpellsDP and (raidtank == "MAINTANK" and self.opt.mainTank) then
 							else
 								SetNormalBlessings(self.player, class, tmp.name, 0)
 								raidmaintanks[tmp.name] = false
@@ -2410,8 +2410,8 @@ function PallyPower:UpdateRoster()
 						end
 					end
 					if (raidmainassists[tmp.name] == true) then
-						if PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] == self.opt.mainAssistSpellsDP then
-							if PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainAssistGSpellsDP and (raidtank == "MAINASSIST" and self.opt.mainAssist) then
+						if PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] == self.opt.mainAssistSpellsDP then
+							if PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainAssistGSpellsDP and (raidtank == "MAINASSIST" and self.opt.mainAssist) then
 							else
 								SetNormalBlessings(self.player, class, tmp.name, 0)
 								raidmainassists[tmp.name] = false
@@ -2419,7 +2419,7 @@ function PallyPower:UpdateRoster()
 						end
 					end
 					if (raidtank == "MAINTANK" and self.opt.mainTank) then
-						if (PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainTankGSpellsDP and (raidmaintanks[tmp.name] == false or raidmaintanks[tmp.name] == nil)) or (PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainTankSpellsDP and raidmaintanks[tmp.name] == true) then
+						if (PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainTankGSpellsDP and (raidmaintanks[tmp.name] == false or raidmaintanks[tmp.name] == nil)) or (PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainTankSpellsDP and raidmaintanks[tmp.name] == true) then
 							if (self.player == tmp.name and self.opt.mainTankSpellsDP == 7) then
 								SetNormalBlessings(self.player, class, tmp.name, 0)
 							else
@@ -2429,7 +2429,7 @@ function PallyPower:UpdateRoster()
 						end
 					end
 					if (raidtank == "MAINASSIST" and self.opt.mainAssist) then
-						if (PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][class] == self.opt.mainAssistGSpellsDP and (raidmainassists[tmp.name] == false or raidmainassists[tmp.name] == nil)) or (PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][class] and PallyPower_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainAssistSpellsDP and raidmainassists[tmp.name] == true) then
+						if (PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][class] == self.opt.mainAssistGSpellsDP and (raidmainassists[tmp.name] == false or raidmainassists[tmp.name] == nil)) or (PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][class] and PallyPowerKronos_NormalAssignments[self.player][class][tmp.name] ~= self.opt.mainAssistSpellsDP and raidmainassists[tmp.name] == true) then
 							if (self.player == tmp.name and self.opt.mainTankSpellsDP == 7) then
 								SetNormalBlessings(self.player, class, tmp.name, 0)
 							else
@@ -2813,7 +2813,7 @@ function PallyPower:UpdateLayout()
 	auraBtn:SetAttribute("type1", "spell")
 	auraBtn:SetAttribute("unit1", "player")
 	if self.opt.auras then
-		self:UpdateAuraButton(PallyPower_AuraAssignments[self.player])
+		self:UpdateAuraButton(PallyPowerKronos_AuraAssignments[self.player])
 	end
 	if isPally and self.opt.enabled and self.opt.auras and AllPallys[self.player].AuraInfo[1] and ((GetNumGroupMembers() == 0 and self.opt.ShowWhenSolo) or (GetNumGroupMembers() > 0 and self.opt.ShowInParty)) then
 		auraBtn:Show()
@@ -2882,7 +2882,7 @@ function PallyPower:UpdateLayout()
 				-- Reset Alternate Blessings
 				if unit and unit.name and classIndex then
 					pButton:SetAttribute("ctrl-type2", "macro")
-					pButton:SetAttribute("ctrl-macrotext2", "/run PallyPower_NormalAssignments['" .. self.player .. "'][" .. classIndex .. "]['" .. unit.name .. "'] = nil")
+					pButton:SetAttribute("ctrl-macrotext2", "/run PallyPowerKronos_NormalAssignments['" .. self.player .. "'][" .. classIndex .. "]['" .. unit.name .. "'] = nil")
 				end
 			end
 			for pbNum = classlist[classIndex] + 1, PALLYPOWER_MAXPERCLASS do
@@ -3425,7 +3425,7 @@ function PallyPower:ButtonsUpdate()
 		self:ApplyBackdrop(rfbutton, self.opt.cBuffGood)
 	end
 	if self.opt.auras then
-		self:UpdateAuraButton(PallyPower_AuraAssignments[self.player])
+		self:UpdateAuraButton(PallyPowerKronos_AuraAssignments[self.player])
 	end
 	if minClassExpire ~= 9999 or minSpecialExpire ~= 9999 or expire1 ~= 9999 or expire2 ~= 9999 then
 		if isPally and not self.buttonUpdate then
@@ -3451,7 +3451,7 @@ function PallyPower:NormalBlessingCount(classID)
 	if classlist[classID] then
 		for pbNum = 1, math.min(classlist[classID], PALLYPOWER_MAXPERCLASS) do
 			local unit = self:GetUnit(classID, pbNum)
-			if unit and unit.name and PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][classID] and PallyPower_NormalAssignments[self.player][classID][unit.name] then
+			if unit and unit.name and PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][classID] and PallyPowerKronos_NormalAssignments[self.player][classID][unit.name] then
 				nbcount = nbcount + 1
 			end
 		end -- by pbnum
@@ -3462,11 +3462,11 @@ end
 function PallyPower:GetSpellID(classID, playerName)
 	local normal = 0
 	local greater = 0
-	if playerName and PallyPower_NormalAssignments[self.player] and PallyPower_NormalAssignments[self.player][classID] and PallyPower_NormalAssignments[self.player][classID][playerName] then
-		normal = PallyPower_NormalAssignments[self.player][classID][playerName]
+	if playerName and PallyPowerKronos_NormalAssignments[self.player] and PallyPowerKronos_NormalAssignments[self.player][classID] and PallyPowerKronos_NormalAssignments[self.player][classID][playerName] then
+		normal = PallyPowerKronos_NormalAssignments[self.player][classID][playerName]
 	end
-	if PallyPower_Assignments[self.player] and PallyPower_Assignments[self.player][classID] then
-		greater = PallyPower_Assignments[self.player][classID]
+	if PallyPowerKronos_Assignments[self.player] and PallyPowerKronos_Assignments[self.player][classID] then
+		greater = PallyPowerKronos_Assignments[self.player][classID]
 	end
 	if normal == 0 then
 		normal = greater
@@ -4255,7 +4255,7 @@ function PallyPower:AutoAssign()
 			function()
 				for name in pairs(AllPallys) do
 					local s = ""
-					local BuffInfo = PallyPower_Assignments[name]
+					local BuffInfo = PallyPowerKronos_Assignments[name]
 					for i = 1, PALLYPOWER_MAXCLASSES do
 						if not BuffInfo[i] or BuffInfo[i] == 0 then
 							s = s .. "n"
@@ -4464,13 +4464,13 @@ function PallyPower:BuffSelections(buff, class, pallys)
 	if Buffer ~= "" then
 		if (IsInRaid() and buff > 2) then
 			for pclass = 1, PALLYPOWER_MAXCLASSES do
-				PallyPower_Assignments[Buffer][pclass] = buff
+				PallyPowerKronos_Assignments[Buffer][pclass] = buff
 			end
-		elseif PallyPower_Assignments and not PallyPower_Assignments[Buffer] then
-			PallyPower_Assignments[Buffer] = {}
-			PallyPower_Assignments[Buffer][class] = buff
+		elseif PallyPowerKronos_Assignments and not PallyPowerKronos_Assignments[Buffer] then
+			PallyPowerKronos_Assignments[Buffer] = {}
+			PallyPowerKronos_Assignments[Buffer][class] = buff
 		else
-			PallyPower_Assignments[Buffer][class] = buff
+			PallyPowerKronos_Assignments[Buffer][class] = buff
 		end
 		if IsInRaid() then
 			-----------------------------------------------------------------------------------------------------------------
@@ -4537,7 +4537,7 @@ function PallyPowerAuraButton_OnClick(btn, mouseBtn)
 		return false
 	end
 	if (mouseBtn == "RightButton") then
-		PallyPower_AuraAssignments[pname] = 0
+		PallyPowerKronos_AuraAssignments[pname] = 0
 		PallyPower:SendMessage("AASSIGN " .. pname .. " 0")
 	else
 		PallyPower:PerformAuraCycle(pname)
@@ -4568,10 +4568,10 @@ function PallyPower:HasAura(name, test)
 end
 
 function PallyPower:PerformAuraCycle(name, skipzero)
-	if not PallyPower_AuraAssignments[name] then
-		PallyPower_AuraAssignments[name] = 0
+	if not PallyPowerKronos_AuraAssignments[name] then
+		PallyPowerKronos_AuraAssignments[name] = 0
 	end
-	local cur = PallyPower_AuraAssignments[name]
+	local cur = PallyPowerKronos_AuraAssignments[name]
 	for test = cur + 1, PALLYPOWER_MAXAURAS do
 		if self:HasAura(name, test) then
 			cur = test
@@ -4580,20 +4580,20 @@ function PallyPower:PerformAuraCycle(name, skipzero)
 			end
 		end
 	end
-	if (cur == PallyPower_AuraAssignments[name]) then
+	if (cur == PallyPowerKronos_AuraAssignments[name]) then
 		if skipzero and self:HasAura(name, 1) then
 			cur = 1
 		else
 			cur = 0
 		end
 	end
-	PallyPower_AuraAssignments[name] = cur
+	PallyPowerKronos_AuraAssignments[name] = cur
 	local msgQueue
 	msgQueue =
 		C_Timer.NewTimer(
 		2.0,
 		function()
-			self:SendMessage("AASSIGN " .. name .. " " .. PallyPower_AuraAssignments[name])
+			self:SendMessage("AASSIGN " .. name .. " " .. PallyPowerKronos_AuraAssignments[name])
 			self:UpdateLayout()
 			msgQueue:Cancel()
 		end
@@ -4601,22 +4601,22 @@ function PallyPower:PerformAuraCycle(name, skipzero)
 end
 
 function PallyPower:PerformAuraCycleBackwards(name, skipzero)
-	if not PallyPower_AuraAssignments[name] then
-		PallyPower_AuraAssignments[name] = 0
+	if not PallyPowerKronos_AuraAssignments[name] then
+		PallyPowerKronos_AuraAssignments[name] = 0
 	end
-	local cur = PallyPower_AuraAssignments[name] - 1
+	local cur = PallyPowerKronos_AuraAssignments[name] - 1
 	if (cur < 0) or (skipzero and (cur < 1)) then
 		cur = PALLYPOWER_MAXAURAS
 	end
 	for test = cur, 0, -1 do
 		if self:HasAura(name, test) or (test == 0 and not skipzero) then
-			PallyPower_AuraAssignments[name] = test
+			PallyPowerKronos_AuraAssignments[name] = test
 			local msgQueue
 			msgQueue =
 				C_Timer.NewTimer(
 				2.0,
 				function()
-					self:SendMessage("AASSIGN " .. name .. " " .. PallyPower_AuraAssignments[name])
+					self:SendMessage("AASSIGN " .. name .. " " .. PallyPowerKronos_AuraAssignments[name])
 					self:UpdateLayout()
 					msgQueue:Cancel()
 				end
@@ -4656,7 +4656,7 @@ function PallyPower:UpdateAuraButton(aura)
 	local auraIcon = _G["PallyPowerAuraIcon"]
 	if (aura and aura > 0) then
 		for name in pairs(AllPallys) do
-			if (name ~= self.player) and (AllPallys[name].subgroup == AllPallys[self.player].subgroup) and (aura == PallyPower_AuraAssignments[name]) then
+			if (name ~= self.player) and (AllPallys[name].subgroup == AllPallys[self.player].subgroup) and (aura == PallyPowerKronos_AuraAssignments[name]) then
 				tinsert(pallys, name)
 			end
 		end
@@ -4729,7 +4729,7 @@ function PallyPower:AutoAssignAuras(precedence)
 				for i, name in pairs(subgroup) do
 					if assignee == name then
 						tremove(subgroup, i)
-						PallyPower_AuraAssignments[assignee] = aura
+						PallyPowerKronos_AuraAssignments[assignee] = aura
 						self:SendMessage("AASSIGN " .. assignee .. " " .. aura)
 					end
 				end

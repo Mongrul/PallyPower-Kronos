@@ -433,10 +433,10 @@ PallyPower.options = {
 							name = L["AURATRACKER"],
 							desc = L["AURATRACKER_DESC"],
 							get = function(info)
-								return PallyPower_AuraAssignments[PallyPower.player]
+								return PallyPowerKronos_AuraAssignments[PallyPower.player]
 							end,
 							set = function(info, val)
-								PallyPower_AuraAssignments[PallyPower.player] = val
+								PallyPowerKronos_AuraAssignments[PallyPower.player] = val
 							end,
 							values = {
 								[0] = L["NONE"],
