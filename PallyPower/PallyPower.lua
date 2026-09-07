@@ -1819,27 +1819,39 @@ function PallyPower:CHAT_MSG_SYSTEM(event, text)
 	end
 end
 
--- Kronos: our own greater-blessing casts refresh EVERY class member, but a
--- refresh of an already-present buff often produces no aura event LCD can
--- observe through the proxy, so other units' timers went stale. Stamp the
--- fresh expiry ourselves at cast time; readers prefer the newer value.
+-- Kronos: our own blessing casts are the one thing this addon knows for
+-- certain, yet their timers came from LCD, which through the proxy misses
+-- greater refreshes entirely and, in combat, the first normal (5-min) apply
+-- (its cast filter races the proxy's aura update). Stamp the fresh expiry
+-- ourselves when UNIT_SPELLCAST_SUCCEEDED confirms the cast; readers prefer
+-- the newer value. Stamps are keyed by unit name and buff name.
 local KronosCastStamp = {}
-local GreaterSpellToBless
-function PallyPower:KronosStampGreater(spellID, targetName)
-	if not GreaterSpellToBless then
-		GreaterSpellToBless = {}
+local KronosSpellToBless
+local KronosGreaterName
+function PallyPower:KronosStampCast(spellID, targetName)
+	if not KronosSpellToBless then
+		KronosSpellToBless = {}
+		KronosGreaterName = {}
 		for blessID, ranks in pairs(self.GreaterBuffs) do
 			for _, r in pairs(ranks) do
-				GreaterSpellToBless[r[2]] = blessID
+				KronosSpellToBless[r[2]] = {blessID, true}
+			end
+			KronosGreaterName[self.GSpells[blessID]] = true
+		end
+		for blessID, ranks in pairs(self.NormalBuffs) do
+			for _, r in pairs(ranks) do
+				KronosSpellToBless[r[2]] = {blessID, false}
 			end
 		end
 	end
 	-- targetName comes from UNIT_SPELLCAST_SENT - the exact unit we cast on,
 	-- known in AND out of combat regardless of the secure buttons
-	local blessID = GreaterSpellToBless[spellID]
-	if not blessID or not targetName then return end
-	local gspell = self.GSpells[blessID]
-	local expire = GetTime() + PALLYPOWER_GREATERBLESSINGDURATION
+	local rec = KronosSpellToBless[spellID]
+	if not rec or not targetName then return end
+	local blessID, isGreater = rec[1], rec[2]
+	local gspell = isGreater and self.GSpells[blessID] or self.Spells[blessID]
+	local duration = isGreater and PALLYPOWER_GREATERBLESSINGDURATION or PALLYPOWER_NORMALBLESSINGDURATION
+	local expire = GetTime() + duration
 	targetName = Ambiguate(targetName, "none")
 	-- find the cast target and its class
 	local tclass, tunit
@@ -1855,10 +1867,18 @@ function PallyPower:KronosStampGreater(spellID, targetName)
 		if tclass then break end
 	end
 	if not tclass then return end
-	local function stampUnit(unit)
-		-- only stamp units in range (out-of-range / LoS-blocked members keep
-		-- their real, older timer) that actually carry the buff right now
-		if unit.unitid and unit.name and IsSpellInRange(gspell, unit.unitid) == 1 then
+	-- the cast target is stamped unconditionally: SUCCEEDED means it landed,
+	-- and the aura itself may reach the client a moment later
+	KronosCastStamp[tunit.name] = KronosCastStamp[tunit.name] or {}
+	KronosCastStamp[tunit.name][gspell] = expire
+	-- a normal blessing, or a greater on a pet, hits only the target
+	if not isGreater or (tunit.unitid and tunit.unitid:find("pet")) then return end
+	-- Kronos: a greater applies to the target's whole class in range, so
+	-- stamp only THAT class (never other classes sharing the blessing)
+	for _, unit in pairs(classes[tclass]) do
+		-- only stamp class-mates in range (out-of-range / LoS-blocked members
+		-- keep their real, older timer) that actually carry the buff right now
+		if unit ~= tunit and unit.unitid and unit.name and not unit.unitid:find("pet") and IsSpellInRange(gspell, unit.unitid) == 1 then
 			local j = 1
 			local bn = UnitBuff(unit.unitid, j)
 			while bn do
@@ -1872,26 +1892,17 @@ function PallyPower:KronosStampGreater(spellID, targetName)
 			end
 		end
 	end
-	if tunit.unitid and tunit.unitid:find("pet") then
-		stampUnit(tunit) -- a greater on a pet hits only that pet
-	else
-		-- Kronos: a greater applies to the target's whole class in range, so
-		-- stamp only THAT class (never other classes sharing the blessing)
-		for _, unit in pairs(classes[tclass]) do
-			if not (unit.unitid and unit.unitid:find("pet")) then
-				stampUnit(unit)
-			end
-		end
-	end
 end
 
+-- seconds left and full duration of our own stamp for this unit and buff name
 function PallyPower:KronosStampLeft(unitName, buffName)
 	local t = unitName and KronosCastStamp[unitName]
 	local st = t and t[buffName]
 	if st then
 		local left = st - GetTime()
 		if left > 0 then
-			return left
+			local duration = (KronosGreaterName and KronosGreaterName[buffName]) and PALLYPOWER_GREATERBLESSINGDURATION or PALLYPOWER_NORMALBLESSINGDURATION
+			return left, duration
 		end
 		t[buffName] = nil
 	end
@@ -1899,7 +1910,7 @@ function PallyPower:KronosStampLeft(unitName, buffName)
 end
 
 -- UNIT_SPELLCAST_SENT reports the target NAME of a cast (works in and out of
--- combat, regardless of the secure buttons). Remember our own greater casts;
+-- combat, regardless of the secure buttons). Remember our own blessing casts;
 -- UNIT_SPELLCAST_SUCCEEDED then commits the timer stamp only if it landed.
 function PallyPower:UNIT_SPELLCAST_SENT(event, unit, target, castGUID, spellID)
 	if unit == "player" and target and target ~= "" then
@@ -1920,7 +1931,7 @@ function PallyPower:UNIT_SPELLCAST_SUCCEEDED(event, unitTarget, castGUID, spellI
 	if unitTarget == "player" then
 		local sent = self.KronosSent and self.KronosSent[castGUID or spellID]
 		if sent and (GetTime() - sent.at < 3) then
-			self:KronosStampGreater(spellID, sent.target)
+			self:KronosStampCast(spellID, sent.target)
 		end
 		if self.KronosSent then self.KronosSent[castGUID or spellID] = nil end
 	end
@@ -3097,6 +3108,15 @@ function PallyPower:GetBuffExpiration(classID)
 						else
 							buffExpire = buffExpire - GetTime()
 						end
+					end
+					-- Kronos: prefer our own cast stamp when newer (normal casts
+					-- stamp only their target; see KronosStampCast)
+					local stampLeft = self:KronosStampLeft(unit.name, spell)
+					if stampLeft and (not buffExpire or stampLeft > buffExpire) then
+						buffExpire = stampLeft
+						buffDuration = PALLYPOWER_NORMALBLESSINGDURATION
+					end
+					if buffExpire then
 						specialExpire = min(specialExpire, buffExpire)
 						specialDuration = min(specialDuration, buffDuration)
 						found = true
@@ -3673,16 +3693,13 @@ function PallyPower:IsBuffActive(spellName, gspellName, unitID)
 					buffExpire = buffExpire - GetTime()
 				end
 			end
-			-- Kronos: our own greater refreshes are invisible to LCD (no aura
-			-- event), so LCD keeps counting the old value and the display
-			-- never updates. Prefer our cast stamp when newer. The stamp is
-			-- only recorded for units actually in range of the cast (see
-			-- KronosStampGreater), so an out-of-LoS member is never stamped
-			-- and correctly keeps his real, older timer.
-			local stampLeft = self:KronosStampLeft(GetUnitName(unitID, true), buffName)
+			-- Kronos: prefer our own cast stamp when newer (see KronosStampCast).
+			-- Only the cast target and in-range class-mates are stamped, so an
+			-- out-of-LoS member correctly keeps his real, older timer.
+			local stampLeft, stampDuration = self:KronosStampLeft(GetUnitName(unitID, true), buffName)
 			if stampLeft and (not buffExpire or stampLeft > buffExpire) then
 				buffExpire = stampLeft
-				buffDuration = PALLYPOWER_GREATERBLESSINGDURATION
+				buffDuration = stampDuration
 			end
 			--self:Debug("[IsBuffActive] buffName: "..buffName.." | buffExpire: "..buffExpire.." | buffDuration: "..buffDuration)
 			return buffExpire, buffDuration, buffName
