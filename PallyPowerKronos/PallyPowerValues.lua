@@ -1,3 +1,4 @@
+if PALLYPOWER_KRONOS_BLOCKED then return end
 local L = LibStub("AceLocale-3.0"):GetLocale("PallyPower")
 
 PallyPower.commPrefix = "PLPWR"
@@ -233,7 +234,7 @@ PallyPower.AuraIcons = {
 }
 
 -- XML Aliases
-PALLYPOWER_NAME = "  " .. L["PP_NAME"] .. " (" .. string.trim(GetAddOnMetadata("PallyPower", "Version")) .. ")"
+PALLYPOWER_NAME = "  " .. L["PP_NAME"] .. " (" .. string.trim(GetAddOnMetadata("PallyPowerKronos", "Version")) .. ")"
 PALLYPOWER_KEYCAT = L["PP_NAME"]
 PALLYPOWER_CLEAR = L["PP_CLEAR"]
 PALLYPOWER_CLEAR_DESC = L["PP_CLEAR_DESC"]

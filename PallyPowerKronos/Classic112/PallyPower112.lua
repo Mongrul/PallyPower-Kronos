@@ -1,3 +1,4 @@
+if PALLYPOWER_KRONOS_BLOCKED then return end
 -- ============================================================================
 -- PallyPower Classic -- vanilla 1.12 client build (Kronos)
 --

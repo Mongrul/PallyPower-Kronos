@@ -1,3 +1,4 @@
+if PALLYPOWER_KRONOS_BLOCKED then return end
 local L = LibStub("AceLocale-3.0"):GetLocale("PallyPower")
 
 local isPally = select(2, UnitClass("player")) == "PALADIN"

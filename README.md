@@ -26,8 +26,10 @@ folder.
 
 ## Install
 
-Drop the `PallyPower` folder into `Interface\AddOns` of either client. On
+Drop the `PallyPowerKronos` folder into `Interface\AddOns` of either client. On
 the 1.12 client, restart the game after adding or updating the folder.
+Delete any old `PallyPower` folder first: the two cannot load together, and
+PallyPower Kronos disables the old one and asks for a reload if it finds it.
 
 ## Commands
 
@@ -52,8 +54,8 @@ the 1.12 client, restart the game after adding or updating the folder.
 covering login and reload, events, clicks, and the comm protocol:
 
 ```
-lua dev/harness.lua PallyPower/Classic112/PallyPower112.lua
-lua dev/harness.lua PallyPower/Classic112/PallyPower112.lua pew
+lua dev/harness.lua PallyPowerKronos/Classic112/PallyPower112.lua
+lua dev/harness.lua PallyPowerKronos/Classic112/PallyPower112.lua pew
 ```
 
 The 1.12 file must stay Lua 5.0: no `#` or `%` operators, no `select`,

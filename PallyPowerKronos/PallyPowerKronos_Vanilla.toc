@@ -1,6 +1,6 @@
 ## Interface: 11403
 ## Author: Aznamir, Dyaxler, Es
-## Title: PallyPower Classic
+## Title: PallyPower Kronos
 ## Version: v1.4.4-classic
 ## Notes: Raid/Party Paladin buffs
 ## Notes-esES: Buffs de Paladín para Grupo/Banda
@@ -12,6 +12,8 @@
 ## X-Embeds: Ace3, LibClassicDurations, LibSharedMedia-3.0, LibUIDropDownMenu
 ## X-Curse-Project-ID: 2703
 ## SavedVariables: PallyPowerKronosDB, PallyPowerKronos_Assignments, PallyPowerKronos_NormalAssignments, PallyPowerKronos_AuraAssignments, PallyPowerKronos_SavedPresets, PallyPowerKronos_ChanNames, LCD_Data, LCD_GUIDAccess
+
+Kronos_Guard.lua
 
 #@no-lib-strip@
 embeds.xml

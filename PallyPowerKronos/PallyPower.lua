@@ -1,3 +1,4 @@
+if PALLYPOWER_KRONOS_BLOCKED then return end
 PallyPower = LibStub("AceAddon-3.0"):NewAddon("PallyPower", "AceConsole-3.0", "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
 
 local L = LibStub("AceLocale-3.0"):GetLocale("PallyPower")
@@ -142,7 +143,7 @@ function PallyPower:OnInitialize()
 			["icon"] = "Interface\\AddOns\\PallyPower\\Icons\\SummonChampion",
 			["OnTooltipShow"] = function(tooltip)
 				if self.opt.ShowTooltips then
-					tooltip:SetText(L["PP_NAME"] .. " (" .. string.trim(GetAddOnMetadata("PallyPower", "Version")) .. ")")
+					tooltip:SetText(L["PP_NAME"] .. " (" .. string.trim(GetAddOnMetadata("PallyPowerKronos", "Version")) .. ")")
 					tooltip:AddLine(L["MINIMAPICON"])
 					tooltip:Show()
 				end
