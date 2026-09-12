@@ -8,6 +8,13 @@ protocol regardless of client.
 Maintained by **Mirasu** of Kronos. Based on PallyPower Classic v1.4.4 by
 Aznamir, Dyaxler and Es; the original licence file is kept in the addon
 folder.
+<img width="1322" height="329" alt="image" src="https://github.com/user-attachments/assets/2ed86b99-52c9-4063-ab5f-ad60068c7567" />
+
+<img width="574" height="362" alt="image" src="https://github.com/user-attachments/assets/c5f214d8-d7f5-43ea-be75-7a8ef9b35918" />
+
+<img width="302" height="96" alt="image" src="https://github.com/user-attachments/assets/e8b9a3e5-74e9-4957-9b0f-498d5cd38a24" />
+
+
 
 ## How the two builds fit together
 
